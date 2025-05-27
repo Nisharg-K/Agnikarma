@@ -1,0 +1,340 @@
+/* Dashboard Layout */
+.dashboard {
+    display: flex;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    min-height: calc(100vh - var(--header-height) - 100px);
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    flex-shrink: 0;
+    overflow: hidden;
+    height: fit-content;
+    position: sticky;
+    top: calc(var(--header-height) + 20px);
+  }
+  
+  .sidebar-header {
+    padding: 20px;
+    background-color: var(--primary);
+    color: white;
+  }
+  
+  .sidebar-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+  
+  .sidebar-menu {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .sidebar-menu li {
+    transition: var(--transition);
+  }
+  
+  .sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: var(--gray-700);
+    border-left: 3px solid transparent;
+    transition: var(--transition);
+  }
+  
+  .sidebar-menu li a i {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+  }
+  
+  .sidebar-menu li:hover a {
+    background-color: var(--gray-100);
+    color: var(--primary);
+    border-left-color: var(--primary);
+  }
+  
+  .sidebar-menu li.active a {
+    background-color: rgba(44, 98, 237, 0.1);
+    color: var(--primary);
+    border-left-color: var(--primary);
+    font-weight: 500;
+  }
+  
+  /* Main Content */
+  .main-content {
+    flex: 1;
+    padding-left: 30px;
+  }
+  
+  .dashboard-section {
+    display: none;
+  }
+  
+  .dashboard-section.active {
+    display: block;
+    animation: fadeIn 0.3s;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .dashboard-section h2 {
+    margin-bottom: 20px;
+    color: var(--gray-800);
+    font-weight: 500;
+    font-size: 1.75rem;
+  }
+  
+  /* Doctor Welcome Section */
+  .doctor-welcome {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    align-items: center;
+    background-image: linear-gradient(to right, rgba(44, 98, 237, 0.1), white);
+  }
+  
+  .doctor-info h3 {
+    margin: 0;
+    padding: 0;
+    font-size: 1.5rem;
+    color: var(--primary);
+  }
+  
+  .doctor-info p {
+    margin: 5px 0 0;
+    color: var(--gray-600);
+  }
+  
+  /* Stats Container */
+  .stats-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+    margin-bottom: 30px;
+  }
+  
+  .stat-card {
+    flex: 1;
+    min-width: 250px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    margin: 0 15px 30px;
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(44, 98, 237, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+  }
+  
+  .stat-icon i {
+    font-size: 1.5rem;
+    color: var(--primary);
+  }
+  
+  .stat-details h3 {
+    margin: 0 0 5px;
+    font-size: 1rem;
+    color: var(--gray-600);
+    font-weight: 400;
+  }
+  
+  .stat-count {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  
+  /* Profile Section */
+  .profile-info {
+    padding: 20px;
+  }
+  
+  .profile-info h3 {
+    color: var(--gray-700);
+    margin-bottom: 10px;
+  }
+  
+  .profile-info p {
+    margin-bottom: 20px;
+    color: var(--gray-600);
+  }
+  
+  .profile-info .info-row {
+    display: flex;
+    margin-bottom: 15px;
+  }
+  
+  .profile-info .info-label {
+    width: 150px;
+    font-weight: 500;
+    color: var(--gray-700);
+  }
+  
+  .profile-info .info-value {
+    flex: 1;
+    color: var(--gray-800);
+  }
+  
+  /* Patient Details */
+  #patient-details-content {
+    margin-bottom: 20px;
+  }
+  
+  #patient-details-content .details-group {
+    margin-bottom: 20px;
+  }
+  
+  #patient-details-content .details-label {
+    font-weight: 500;
+    color: var(--gray-700);
+    margin-bottom: 5px;
+  }
+  
+  #patient-details-content .details-value {
+    padding: 10px;
+    background-color: var(--gray-100);
+    border-radius: var(--border-radius);
+    color: var(--gray-800);
+  }
+  
+  /* Action Buttons */
+  .action-btn {
+    padding: 8px 15px;
+    border-radius: var(--border-radius);
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    margin-right: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .action-btn:hover {
+    opacity: 0.9;
+  }
+  
+  .action-btn.view {
+    background-color: var(--info);
+  }
+  
+  .action-btn.edit {
+    background-color: var(--warning);
+  }
+  
+  .action-btn.delete {
+    background-color: var(--danger);
+  }
+  
+  /* Responsive Layout */
+  @media (max-width: 992px) {
+    .dashboard {
+      flex-direction: column;
+    }
+    
+    .sidebar {
+      width: 100%;
+      position: relative;
+      top: 0;
+      margin-bottom: 20px;
+    }
+    
+    .main-content {
+      padding-left: 0;
+    }
+    
+    .stat-card {
+      min-width: calc(50% - 30px);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .stat-card {
+      min-width: calc(100% - 30px);
+    }
+    
+    .main-content {
+      padding: 0;
+    }
+  }
+  
+  /* Table Responsiveness */
+  @media (max-width: 992px) {
+    table, thead, tbody, th, td, tr {
+      display: block;
+    }
+    
+    thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+    
+    tr {
+      border: 1px solid var(--gray-300);
+      margin-bottom: 15px;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+    
+    td {
+      border: none;
+      border-bottom: 1px solid var(--gray-300);
+      position: relative;
+      padding-left: 50%;
+      text-align: right;
+    }
+    
+    td:before {
+      position: absolute;
+      top: 12px;
+      left: 15px;
+      width: 45%;
+      padding-right: 10px;
+      white-space: nowrap;
+      content: attr(data-label);
+      font-weight: 500;
+      text-align: left;
+    }
+    
+    td:last-child {
+      border-bottom: none;
+    }
+  }

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Agnikarma Management Portal</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/admin-dashboard.js" defer></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="logo-container">
+                <h2>Agnikarma</h2>
+            </div>
+            <div class="user-info">
+                <div class="avatar">A</div>
+                <div class="user-details">
+                    <h3 id="userName">Administrator</h3>
+                    <p>Admin</p>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li class="active"><a href="#dashboard-section"><i class="icon dashboard-icon"></i>Dashboard</a></li>
+                    <li><a href="#pending-requests-section"><i class="icon requests-icon"></i>Pending Requests</a></li>
+                    <li><a href="#doctors-section"><i class="icon doctors-icon"></i>Doctors</a></li>
+                    <li><a href="#patients-section"><i class="icon patients-icon"></i>Patients</a></li>
+                </ul>
+            </nav>
+            <div class="logout-container">
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <header class="dashboard-header">
+                <h1>Admin Dashboard</h1>
+                <div class="header-actions">
+                    <div class="date-display">
+                        <script>
+                            document.write(new Date().toLocaleDateString());
+                        </script>
+                    </div>
+                </div>
+            </header>
+            
+            <section id="dashboard-section" class="dashboard-section">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-icon doctor-icon"></div>
+                        <div class="stat-details">
+                            <h3>Total Doctors</h3>
+                            <p id="doctorCount">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon patient-icon"></div>
+                        <div class="stat-details">
+                            <h3>Total Patients</h3>
+                            <p id="patientCount">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon request-icon"></div>
+                        <div class="stat-details">
+                            <h3>Pending Requests</h3>
+                            <p id="pendingRequestsCount">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-panels">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Recent Patients</h2>
+                        </div>
+                        <div class="panel-body">
+                            <table id="recentPatientsTable" class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Age</th>
+                                        <th>Gender</th>
+                                        <th>Diagnosis</th>
+                                        <th>Doctor</th>
+                                        <th>Admission Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Patient data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="pending-requests-section" class="section-container">
+                <div class="section-header">
+                    <h2>Pending Account Requests</h2>
+                </div>
+                <div id="pendingRequestsContainer" class="requests-container">
+                    <!-- Pending requests will be populated by JavaScript -->
+                    <p>Loading pending requests...</p>
+                </div>
+            </section>
+            
+            <section id="doctors-section" class="section-container">
+                <div class="section-header">
+                    <h2>Doctors</h2>
+                </div>
+                <ul id="doctorsList" class="doctors-list">
+                    <!-- Doctors list will be populated by JavaScript -->
+                </ul>
+            </section>
+            
+            <section id="patients-section" class="section-container">
+                <div class="section-header">
+                    <h2>Patients</h2>
+                    <button class="add-btn" onclick="window.location.href='/add-patient'">Add Patient</button>
+                </div>
+                <div class="patient-filter">
+                    <input type="text" id="patientSearch" placeholder="Search patients...">
+                </div>
+                <div id="patientListContainer" class="patient-list-container">
+                    <p>This section will be implemented in future updates.</p>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+
+</html>
