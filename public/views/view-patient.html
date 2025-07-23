@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View Patient</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px;
+      max-width: 800px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .info-item {
+      margin-bottom: 15px;
+      padding: 10px 15px;
+      border-left: 4px solid #4facfe;
+      background: #f9f9f9;
+      border-radius: 5px;
+    }
+
+    .label {
+      font-weight: bold;
+      display: inline-block;
+      width: 180px;
+      color: #555;
+    }
+
+    .value {
+      color: #111;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 30px;
+      background: #4facfe;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 25px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #327de0;
+    }
+
+    .error {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Patient Details</h1>
+    <div id="patientDetails">Loading...</div>
+    <a href="/admin-dashboard" class="btn">← Back to Dashboard</a>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const id = window.location.pathname.split('/').pop();
+      const container = document.getElementById('patientDetails');
+
+      try {
+        const res = await fetch(`/api/view-patient/${id}`);
+        if (!res.ok) throw new Error('Patient not found');
+
+        const p = await res.json();
+
+        const format = (label, value) => `
+          <div class="info-item">
+            <span class="label">${label}:</span>
+            <span class="value">${value || '-'}</span>
+          </div>
+        `;
+
+        container.innerHTML = `
+          ${format("Patient Name", p.patientName)}
+          ${format("Age & Gender", p.ageGender)}
+          ${format("Register No.", p.registerNo)}
+          ${format("Sr. No.", p.srNo)}
+          ${format("OPD No.", p.opdNo)}
+          ${format("Address", p.address)}
+          ${format("Marital Status", p.maritalStatus)}
+          ${format("Occupation", p.occupation)}
+          ${format("Socio-Eco Status", p.socioStatus?.join(', '))}
+          ${format("Group", p.group)}
+          ${format("1st Sitting", p.sitting1)}
+          ${format("2nd Sitting", p.sitting2)}
+          ${format("1st Follow-up", p.followUp1)}
+          ${format("2nd Follow-up", p.followUp2)}
+          ${format("Completion Date", p.completionDate)}
+          ${format("Drop Out", p.dropout)}
+          ${format("Chief Complaint - Pain", p.cc_pain)}
+          ${format("Chief Complaint - Stiffness", p.cc_stiffness)}
+          ${format("Chief Complaint - Graham", p.cc_movement)}
+          ${format("Chief Complaint - Headache", p.cc_headache)}
+          ${format("Chief Complaint - Numbness", p.cc_numbness)}
+          ${format("Visit Day 1", p.visit1)}
+          ${format("Visit Day 15", p.visit15)}
+          ${format("Visit Day 22", p.visit22)}
+          ${format("Visit Day 29", p.visit29)}
+          ${format("Present Illness", p.presentIllness)}
+          ${format("Past History", p.pastHistory)}
+          ${format("Similar Complaints", p.similarComplaints)}
+          ${format("Family History - Musculoskeletal", p.fh_msk)}
+          ${format("Family History - Other", p.fh_other)}
+          ${format("Result", p.result)}
+          ${format("Guide Signature", p.guideSignature)}
+          ${format("Scholar Signature", p.scholarSignature)}
+        `;
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = '<div class="error">Error loading patient data</div>';
+      }
+    });
+  </script>
+</body>
+</html>
