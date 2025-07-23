@@ -7,6 +7,8 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
+const Blog = require('./models/BLogs');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -101,6 +103,40 @@ app.get('/logout', (req, res) => {
   res.redirect('/login');
 });
 
+// Public: Serve the blog HTML page
+app.get('/blogs', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/views/blogs.html'));
+});
+
+// Public: Fetch all blogs
+app.get('/api/blogs', async (req, res) => {
+  try {
+    const blogs = await Blog.find().sort({ createdAt: -1 });
+    res.json(blogs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Admin Only: Create a blog
+app.post('/api/blogs', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    const blog = new Blog({
+      title,
+      content,
+      author: req.session.user.fullName
+    });
+    await blog.save();
+    res.json({ success: true, blog });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
 app.get('/create-account', (req, res) =>
   serveHtmlFile(path.join(__dirname, 'public/views/create-account.html'), res)
 );
@@ -133,6 +169,18 @@ app.post('/create-account', async (req, res) => {
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
+
+// Update a blog (admin only)
+app.put('/api/blogs/:id', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const updated = await Blog.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ success: true, blog: updated });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Update failed' });
+  }
+});
+
 
 // Dashboard
 app.get('/dashboard', isAuthenticated, (req, res) =>
@@ -252,18 +300,24 @@ app.get('/add-patient', (req, res) =>
   res.sendFile(path.join(__dirname, 'public/views/add-patient.html'))
 );
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 app.post('/add-patient', async (req, res) => {
   try {
-    console.log('✅ Received form submission:', req.body); // ✅ Confirmation
+    console.log("✅ Form submission received.");
+
     const newPatient = new Patient(req.body);
     await newPatient.save();
-    console.log('✅ Patient saved to DB:', newPatient._id); // ✅ DB save check
-    res.send('<h2>Patient record saved successfully.</h2><a href="/add-patient">Add Another</a>');
+
+    res.send("Form Submitted & Patient Saved Successfully!");
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Error saving patient data.');
+    console.error("❌ Error saving patient:", err);
+    res.status(500).send("Error saving patient");
   }
 });
+
+
 
 // Doctor adds patient (API)
 app.post('/api/patients', isAuthenticated, async (req, res) => {
@@ -288,13 +342,30 @@ app.post('/api/patients', isAuthenticated, async (req, res) => {
 });
 
 // Get doctor list
-app.get('/api/doctors', isAuthenticated, async (req, res) => {
+app.get('/api/admin/patients', isAuthenticated, isAdmin, async (req, res) => {
   try {
-    const doctors = await User.find({ role: 'doctor', approved: true }).select('_id fullName specialization');
-    res.json(doctors);
+    const patients = await Patient.find().populate('doctorAssigned', 'fullName');
+    res.json(patients);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/view-patient/:id', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'views', 'view-patient.html'));
+});
+
+// Provide patient data as JSON
+app.get('/api/view-patient/:id', async (req, res) => {
+  try {
+    const patient = await Patient.findById(req.params.id);
+    if (!patient) return res.status(404).json({ error: 'Patient not found' });
+
+    res.json(patient);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server Error' });
   }
 });
 
@@ -331,7 +402,8 @@ const initAdminAccount = async () => {
 };
 
 mongoose.connect('mongodb+srv://Agnikarma:fRiOcgj1aMbVqRG9@agnikarma.n2fcm3b.mongodb.net/?retryWrites=true&w=majority&appName=Agnikarma', {
-
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 })
 .then(async () => {
   console.log('MongoDB Connected');
