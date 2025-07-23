@@ -1,215 +1,220 @@
-// admin-dashboard.js - Client-side JavaScript for the admin dashboard
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Check if user is logged in and has admin privileges
+document.addEventListener('DOMContentLoaded', () => {
   fetchDashboardData();
   fetchPendingRequests();
+  fetchAllPatients();
 
-  // Setup event listeners
   document.getElementById('logoutBtn')?.addEventListener('click', logout);
+  document.getElementById('patientSearch')?.addEventListener('input', filterPatients);
 });
 
-// Fetch dashboard data from the server
 async function fetchDashboardData() {
   try {
-      const response = await fetch('/api/admin-dashboard-data');
-      if (!response.ok) {
-          throw new Error('Failed to fetch dashboard data');
-      }
-      
-      const data = await response.json();
-      updateDashboard(data);
+    const response = await fetch('/api/admin-dashboard-data');
+    if (!response.ok) throw new Error('Failed to fetch dashboard data');
+    const data = await response.json();
+    updateDashboard(data);
   } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      showNotification('Error loading dashboard data', 'error');
+    console.error('Error fetching dashboard data:', error);
+    showNotification('Error loading dashboard data', 'error');
   }
 }
 
-// Update dashboard UI with data
 function updateDashboard(data) {
-  // Update user information
+  // Admin name
   if (data.user) {
-      document.getElementById('userName').textContent = data.user.fullName;
+    document.getElementById('userName').textContent = data.user.fullName;
   }
-  
-  // Update statistics
+
+  // Stats
   if (data.stats) {
-      document.getElementById('doctorCount').textContent = data.stats.doctorCount;
-      document.getElementById('patientCount').textContent = data.stats.patientCount;
-      document.getElementById('pendingRequestsCount').textContent = data.stats.pendingRequests;
+    document.getElementById('doctorCount').textContent = data.stats.doctorCount;
+    document.getElementById('patientCount').textContent = data.stats.patientCount;
+    document.getElementById('pendingRequestsCount').textContent = data.stats.pendingRequests;
   }
-  
-  // Update doctors list
-  if (data.doctors && data.doctors.length > 0) {
-      const doctorsList = document.getElementById('doctorsList');
-      doctorsList.innerHTML = '';
-      
-      data.doctors.forEach(doctor => {
-          const li = document.createElement('li');
-          li.className = 'doctor-item';
-          li.innerHTML = `
-              <div class="doctor-info">
-                  <h4>${doctor.fullName}</h4>
-                  <p>${doctor.specialization || 'General'}</p>
-              </div>
-          `;
-          doctorsList.appendChild(li);
-      });
+
+  // Doctors
+  if (Array.isArray(data.doctors)) {
+    const doctorsList = document.getElementById('doctorsList');
+    doctorsList.innerHTML = '';
+    data.doctors.forEach(doctor => {
+      doctorsList.innerHTML += `
+        <li class="doctor-item">
+          <div class="doctor-info">
+            <h4>${doctor.fullName}</h4>
+            <p>${doctor.specialization || 'General'}</p>
+          </div>
+        </li>`;
+    });
   }
-  
-  // Update recent patients
-  if (data.recentPatients && data.recentPatients.length > 0) {
-      const recentPatientsTable = document.getElementById('recentPatientsTable');
-      const tbody = recentPatientsTable.querySelector('tbody') || recentPatientsTable;
-      tbody.innerHTML = '';
-      
-      data.recentPatients.forEach(patient => {
-          const row = document.createElement('tr');
-          const admissionDate = new Date(patient.admissionDate).toLocaleDateString();
-          //insert element at a particular positon
-          row.innerHTML = `
-              <td>${patient.name}</td>
-              <td>${patient.age}</td>
-              <td>${patient.gender}</td>
-              <td>${patient.diagnosis || 'Not specified'}</td>
-              <td>${patient.assignedDoctor ? patient.assignedDoctor.fullName : 'Unassigned'}</td>
-              <td>${admissionDate}</td>
-          `;
-          tbody.appendChild(row);
-      });
+
+  // Recent patients
+  if (Array.isArray(data.recentPatients)) {
+    const tbody = document.querySelector('#recentPatientsTable tbody');
+    tbody.innerHTML = '';
+    data.recentPatients.forEach(patient => {
+      const [age, gender] = (patient.ageGender || '').split(' ');
+      const visitDate = patient.visit1 ? new Date(patient.visit1).toLocaleDateString('en-IN') : '-';
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${patient.patientName || '-'}</td>
+          <td>${age || '-'}</td>
+          <td>${gender || '-'}</td>
+          <td>${patient.diagnosis || '-'}</td>
+          <td>${patient.doctorAssigned?.fullName || 'Unassigned'}</td>
+          <td>${visitDate}</td>
+          <td><a href="/view-patient/${patient._id}" class="btn btn-sm btn-outline-primary">View</a></td>
+        </tr>`;
+    });
   }
 }
 
-// Fetch pending account requests
 async function fetchPendingRequests() {
   try {
-      const response = await fetch('/api/admin/pending-requests');
-      if (!response.ok) {
-          throw new Error('Failed to fetch pending requests');
-      }
-      
-      const requests = await response.json();
-      displayPendingRequests(requests);
-  } catch (error) {
-      console.error('Error fetching pending requests:', error);
-      showNotification('Error loading pending account requests', 'error');
+    const res = await fetch('/api/admin/pending-requests');
+    if (!res.ok) throw new Error('Failed to fetch pending requests');
+    const requests = await res.json();
+    displayPendingRequests(requests);
+  } catch (err) {
+    console.error('Error fetching pending requests:', err);
+    showNotification('Error loading pending requests', 'error');
   }
 }
 
-// Display pending account requests
 function displayPendingRequests(requests) {
-  const requestsContainer = document.getElementById('pendingRequestsContainer');
-  
-  if (!requests || requests.length === 0) {
-      requestsContainer.innerHTML = '<p>No pending account requests.</p>';
-      return;
+  const container = document.getElementById('pendingRequestsContainer');
+  if (!requests.length) {
+    container.innerHTML = '<p>No pending account requests.</p>';
+    return;
   }
-  
-  requestsContainer.innerHTML = '';
-  
-  requests.forEach(request => {
-      const requestCard = document.createElement('div');
-      requestCard.className = 'request-card';
-      requestCard.dataset.id = request._id;
-      
-      requestCard.innerHTML = `
-          <div class="request-info">
-              <h3>${request.fullName}</h3>
-              <p><strong>Username:</strong> ${request.username}</p>
-              <p><strong>Email:</strong> ${request.email}</p>
-              <p><strong>Phone:</strong> ${request.phone || 'Not provided'}</p>
-              <p><strong>Specialization:</strong> ${request.specialization || 'Not specified'}</p>
-              <p><strong>Date:</strong> ${new Date(request.requestDate || Date.now()).toLocaleDateString()}</p>
-          </div>
-          <div class="request-actions">
-              <button class="approve-btn" onclick="approveRequest('${request._id}')">Approve</button>
-              <button class="reject-btn" onclick="rejectRequest('${request._id}')">Reject</button>
-          </div>
-      `;
-      
-      requestsContainer.appendChild(requestCard);
+
+  container.innerHTML = '';
+  requests.forEach(req => {
+    container.innerHTML += `
+      <div class="request-card" data-id="${req._id}">
+        <div class="request-info">
+          <h3>${req.fullName}</h3>
+          <p><strong>Username:</strong> ${req.username}</p>
+          <p><strong>Email:</strong> ${req.email}</p>
+          <p><strong>Phone:</strong> ${req.phone || 'Not provided'}</p>
+          <p><strong>Specialization:</strong> ${req.specialization || 'Not specified'}</p>
+          <p><strong>Date:</strong> ${new Date(req.requestDate || Date.now()).toLocaleDateString()}</p>
+        </div>
+        <div class="request-actions">
+          <button class="approve-btn" onclick="approveRequest('${req._id}')">Approve</button>
+          <button class="reject-btn" onclick="rejectRequest('${req._id}')">Reject</button>
+        </div>
+      </div>`;
   });
 }
 
-// Approve account request
-async function approveRequest(requestId) {
+async function approveRequest(id) {
   try {
-      const response = await fetch(`/api/approve-account/${requestId}`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
-      
-      if (!response.ok) {
-          throw new Error('Failed to approve request');
-      }
-      
-      const result = await response.json();
-      if (result.success) {
-          showNotification('Account approved successfully', 'success');
-          // Remove the request card from UI
-          const requestCard = document.querySelector(`.request-card[data-id="${requestId}"]`);
-          requestCard?.remove();
-          
-          // Refresh dashboard data
-          fetchDashboardData();
-      } else {
-          throw new Error(result.error || 'Unknown error');
-      }
-  } catch (error) {
-      console.error('Error approving request:', error);
-      showNotification('Error approving account: ' + error.message, 'error');
+    const res = await fetch(`/api/approve-account/${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const result = await res.json();
+    if (!res.ok || !result.success) throw new Error(result.error || 'Unknown error');
+
+    showNotification('Account approved successfully', 'success');
+    document.querySelector(`.request-card[data-id="${id}"]`)?.remove();
+    fetchDashboardData();
+  } catch (err) {
+    console.error(err);
+    showNotification('Error approving request: ' + err.message, 'error');
   }
 }
 
-// Reject account request
-async function rejectRequest(requestId) {
+async function rejectRequest(id) {
   try {
-      const response = await fetch(`/api/reject-account/${requestId}`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
-      
-      if (!response.ok) {
-          throw new Error('Failed to reject request');
-      }
-      
-      const result = await response.json();
-      if (result.success) {
-          showNotification('Account request rejected', 'success');
-          // Remove the request card from UI
-          const requestCard = document.querySelector(`.request-card[data-id="${requestId}"]`);
-          requestCard?.remove();
-      } else {
-          throw new Error(result.error || 'Unknown error');
-      }
-  } catch (error) {
-      console.error('Error rejecting request:', error);
-      showNotification('Error rejecting account: ' + error.message, 'error');
+    const res = await fetch(`/api/reject-account/${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const result = await res.json();
+    if (!res.ok || !result.success) throw new Error(result.error || 'Unknown error');
+
+    showNotification('Request rejected', 'success');
+    document.querySelector(`.request-card[data-id="${id}"]`)?.remove();
+  } catch (err) {
+    console.error(err);
+    showNotification('Error rejecting request: ' + err.message, 'error');
   }
 }
 
-// Display notification
 function showNotification(message, type = 'info') {
-  const notification = document.createElement('div');
-  notification.className = `notification ${type}`;
-  notification.textContent = message;
-  
-  document.body.appendChild(notification);
-  
-  // Auto-remove after 5 seconds
+  const div = document.createElement('div');
+  div.className = `notification ${type}`;
+  div.textContent = message;
+  document.body.appendChild(div);
   setTimeout(() => {
-      notification.classList.add('fade-out');
-      setTimeout(() => {
-          notification.remove();
-      }, 500);
+    div.classList.add('fade-out');
+    setTimeout(() => div.remove(), 500);
   }, 5000);
 }
 
-// Logout function
 function logout() {
   window.location.href = '/logout';
+}
+
+// ========================
+// All Patients Table Logic
+// ========================
+let allPatients = [];
+
+async function fetchAllPatients() {
+  try {
+    const res = await fetch('/api/admin/patients');
+    allPatients = await res.json();
+    renderPatientList(allPatients);
+  } catch (err) {
+    console.error('Error fetching patients:', err);
+  }
+}
+
+function renderPatientList(patients) {
+  const container = document.getElementById('patientListContainer');
+  if (!patients.length) {
+    container.innerHTML = '<p>No patients found.</p>';
+    return;
+  }
+
+  const rows = patients.map(p => {
+    const [age, gender] = (p.ageGender || '').split(' ');
+    const visitDate = p.visit1 ? new Date(p.visit1).toLocaleDateString('en-IN') : '-';
+
+    return `
+      <tr>
+        <td>${p.patientName || '-'}</td>
+        <td>${age || '-'}</td>
+        <td>${gender || '-'}</td>
+        <td>${p.group || '-'}</td>
+        <td>${p.doctorAssigned?.fullName || '—'}</td>
+        <td>${visitDate}</td>
+        <td>
+          <a class="btn btn-sm btn-outline-primary" href="/view-patient/${p._id}">View</a>
+        </td>
+      </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Group</th>
+          <th>Doctor</th>
+          <th>Visit Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function filterPatients(e) {
+  const keyword = e.target.value.toLowerCase();
+  const filtered = allPatients.filter(p =>
+    p.patientName?.toLowerCase().includes(keyword) ||
+    p.diagnosis?.toLowerCase().includes(keyword) ||
+    p.ageGender?.toLowerCase().includes(keyword)
+  );
+  renderPatientList(filtered);
 }
