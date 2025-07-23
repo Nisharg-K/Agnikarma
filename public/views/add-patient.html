@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRF Form - Agnikarma</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      padding: 30px;
+      text-align: center;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header p {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .section {
+      margin-bottom: 40px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 25px;
+      border-left: 5px solid #4facfe;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .section h3 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 1.4em;
+      border-bottom: 2px solid #e9ecef;
+      padding-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    tr:hover {
+      background-color: #f8f9ff;
+    }
+
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #4facfe;
+      box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+      transform: translateY(-1px);
+    }
+
+    input[type="checkbox"], input[type="radio"] {
+      margin-right: 8px;
+      transform: scale(1.2);
+      accent-color: #4facfe;
+    }
+
+    label {
+      display: inline-flex;
+      align-items: center;
+      margin-right: 20px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    label:hover {
+      color: #4facfe;
+    }
+
+    .checkbox-group, .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .score-table {
+      overflow-x: auto;
+    }
+
+    .score-table table {
+      min-width: 600px;
+    }
+
+    .result-section {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      border-radius: 10px;
+      padding: 25px;
+      margin-top: 30px;
+    }
+
+    .signature-section {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 25px;
+      margin-top: 20px;
+      border: 2px dashed #dee2e6;
+    }
+
+    .signature-section h4 {
+      color: #495057;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    .investigation-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      list-style: none;
+      padding: 0;
+    }
+
+    .investigation-list li {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      transition: all 0.3s ease;
+    }
+
+    .investigation-list li:hover {
+      border-color: #4facfe;
+      transform: translateY(-2px);
+    }
+
+    .investigation-list li strong {
+      color: #2c3e50;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .status-indicators {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status-indicator {
+      background: white;
+      padding: 8px 12px;
+      border-radius: 20px;
+      border: 2px solid #e9ecef;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        padding: 20px;
+      }
+      
+      .section {
+        padding: 20px;
+      }
+      
+      .header h1 {
+        font-size: 2em;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>CRF Form - Agnikarma</h1>
+    <p>Clinical Research Form for Agnikarma Treatment</p>
+  </div>
+
+  <div class="content">
+    <form action="/add-patient" method="POST">
+      <div class="section">
+        <h3>Patient Registration</h3>
+        <table>
+          <tr>
+            <td><strong>Register No.</strong></td><td><input type="text" name="registerNo"></td>
+            <td><strong>Sr. No.</strong></td><td><input type="text" name="srNo"></td>
+          </tr>
+          <tr>
+            <td><strong>Patient Name</strong></td><td><input type="text" name="patientName"></td>
+            <td><strong>Age & Gender</strong></td><td><input type="text" name="ageGender"></td>
+          </tr>
+          <tr>
+            <td><strong>OPD No.</strong></td><td><input type="text" name="opdNo"></td>
+            <td><strong>Address</strong></td><td><input type="text" name="address"></td>
+          </tr>
+          <tr>
+            <td><strong>Date</strong></td><td><input type="date" name="regDate"></td>
+            <td><strong>Marital Status</strong></td><td><input type="text" name="maritalStatus"></td>
+          </tr>
+          <tr>
+            <td><strong>Occupation</strong></td><td colspan="3"><input type="text" name="occupation"></td>
+          </tr>
+          <tr>
+            <td><strong>Socio-Eco Status</strong></td>
+            <td colspan="3">
+              <div class="checkbox-group">
+                <label><input type="checkbox" name="socioStatus" value="Poor"> Poor</label>
+                <label><input type="checkbox" name="socioStatus" value="Middle Class"> Middle Class</label>
+                <label><input type="checkbox" name="socioStatus" value="Rich"> Rich</label>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h3>Diagnosis & Schedule</h3>
+        <table>
+          <tr>
+            <td><strong>Group</strong></td>
+            <td colspan="3">
+              <div class="radio-group">
+                <label><input type="radio" name="group" value="Group A"> Group A</label>
+                <label><input type="radio" name="group" value="Group B"> Group B</label>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Date of Sitting</strong></td>
+            <td>1st Sitting <input type="date" name="sitting1"></td>
+            <td>2nd Sitting <input type="date" name="sitting2"></td>
+          </tr>
+          <tr>
+            <td><strong>Date of Follow-up</strong></td>
+            <td>1st Follow-up <input type="date" name="followUp1"></td>
+            <td>2nd Follow-up <input type="date" name="followUp2"></td>
+          </tr>
+          <tr>
+            <td><strong>Date of Completion</strong></td>
+            <td colspan="2"><input type="date" name="completionDate"></td>
+          </tr>
+          <tr>
+            <td><strong>Drop Out</strong></td>
+            <td colspan="2"><input type="text" name="dropout"></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h3>Chief Complaints</h3>
+        <table>
+          <tr><th>Sr No.</th><th>Symptoms</th><th>Present/Absent</th></tr>
+          <tr><td>1</td><td>Shoola (Pain)</td><td><select name="cc_pain"><option>Present</option><option>Absent</option></select></td></tr>
+          <tr><td>2</td><td>Stambha (Stiffness)</td><td><select name="cc_stiffness"><option>Present</option><option>Absent</option></select></td></tr>
+          <tr><td>3</td><td>Graham</td><td><select name="cc_movement"><option>Present</option><option>Absent</option></select></td></tr>
+          <tr><td>4</td><td>Shiro shoola</td><td><select name="cc_headache"><option>Present</option><option>Absent</option></select></td></tr>
+          <tr><td>5</td><td>Suptata</td><td><select name="cc_numbness"><option>Present</option><option>Absent</option></select></td></tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h3>Visit Schedule</h3>
+        <table>
+          <tr><th>Sr No.</th><th>Visit Day</th><th>Visit Date</th></tr>
+          <tr><td>1</td><td>1st Day</td><td><input type="date" name="visit1"></td></tr>
+          <tr><td>2</td><td>15th Day</td><td><input type="date" name="visit15"></td></tr>
+          <tr><td>3</td><td>22nd Day</td><td><input type="date" name="visit22"></td></tr>
+          <tr><td>4</td><td>29th Day</td><td><input type="date" name="visit29"></td></tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h3>History</h3>
+        <div class="form-group">
+          <label>Present Illness:</label>
+          <textarea name="presentIllness"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Past History:</label>
+          <textarea name="pastHistory"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Similar Complaints:</label>
+          <textarea name="similarComplaints"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Family History:</label>
+          <div>
+            <p><strong>Musculoskeletal Complaint:</strong>
+              <label><input type="radio" name="fh_msk" value="Yes"> Yes</label>
+              <label><input type="radio" name="fh_msk" value="No"> No</label>
+            </p>
+            <p><strong>Other Complaints:</strong>
+              <label><input type="radio" name="fh_other" value="Yes"> Yes</label>
+              <label><input type="radio" name="fh_other" value="No"> No</label>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- You can add more sections following the same pattern -->
+
+      <div class="section">
+        <h3>Result</h3>
+        <div class="radio-group">
+          <label><input type="radio" name="result" value="Relieved"> Relieved</label>
+          <label><input type="radio" name="result" value="Marked Improvement"> Marked Improvement</label>
+          <label><input type="radio" name="result" value="Moderate Improvement"> Moderate Improvement</label>
+          <label><input type="radio" name="result" value="Mild Improvement"> Mild Improvement</label>
+          <label><input type="radio" name="result" value="Unchanged"> Unchanged</label>
+        </div>
+      </div>
+
+      <div class="signature-section">
+        <h4>Signatures</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Guide Name & Signature:</label>
+            <input type="text" name="guideSignature">
+          </div>
+          <div class="form-group">
+            <label>Scholar Name & Signature:</label>
+            <input type="text" name="scholarSignature">
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 30px;">
+        <button class="btn" id="submitBtn" type="submit">Submit Form</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById('submitBtn').addEventListener('click', function(event) {
+    const confirmSubmission = confirm("Are you sure you want to submit the form?");
+    if (!confirmSubmission) {
+      event.preventDefault();
+    } else {
+      alert("Form submitted successfully!");
+    }
+  });
+</script>
+
+</body>
+</html>
