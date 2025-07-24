@@ -402,8 +402,7 @@ const initAdminAccount = async () => {
 };
 
 mongoose.connect('mongodb+srv://Agnikarma:fRiOcgj1aMbVqRG9@agnikarma.n2fcm3b.mongodb.net/?retryWrites=true&w=majority&appName=Agnikarma', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+
 })
 .then(async () => {
   console.log('MongoDB Connected');
