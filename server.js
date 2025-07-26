@@ -13,6 +13,13 @@ const Blog = require('./models/BLogs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// MongoDB connection
+mongoose.connect('mongodb+srv://Agnikarma:fRiOcgj1aMbVqRG9@agnikarma.n2fcm3b.mongodb.net/?retryWrites=true&w=majority&appName=Agnikarma', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB Connected'))
+.catch(err => console.error('MongoDB Connection Error:', err));
 
 // Schemas
 const userSchema = new mongoose.Schema({
@@ -401,13 +408,7 @@ const initAdminAccount = async () => {
   }
 };
 
-mongoose.connect('mongodb+srv://Agnikarma:fRiOcgj1aMbVqRG9@agnikarma.n2fcm3b.mongodb.net/?retryWrites=true&w=majority&appName=Agnikarma', {
-
-})
-.then(async () => {
-  console.log('MongoDB Connected');
-  await initAdminAccount(); // ✅ Init admin only after DB connection
-})
-.catch(err => console.error('MongoDB Connection Error:', err));
-
-module.exports = app;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  initAdminAccount();
+});
