@@ -8,6 +8,8 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const Blog = require('./models/BLogs');
+// server.js - near the top
+const FormTemplate = require('./models/FormTemplate');
 
 
 const app = express();
@@ -76,7 +78,10 @@ const isAdmin = (req, res, next) => {
 };
 
 // Routes
-app.get('/', (req, res) => res.redirect('/login'));
+// Replace the old line with this one
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/views/index.html'));
+});
 
 app.get('/login', (req, res) =>
   serveHtmlFile(path.join(__dirname, 'public/views/login.html'), res)
@@ -143,7 +148,84 @@ app.post('/api/blogs', isAuthenticated, isAdmin, async (req, res) => {
   }
 });
 
+// server.js - Add these routes
 
+// --- Form Template Management API Routes ---
+
+// GET: Fetch the current form template.
+// server.js
+
+// --- Form Template Management API Routes (CRUD for Multiple Forms) ---
+
+// GET all form templates (names and IDs only)
+app.get('/api/form-templates', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const templates = await FormTemplate.find().select('name _id');
+    res.json(templates);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error fetching form templates' });
+  }
+});
+
+// GET a single form template by ID (with all its fields)
+app.get('/api/form-templates/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const template = await FormTemplate.findById(req.params.id);
+        if (!template) return res.status(404).json({ error: 'Template not found' });
+        res.json(template);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error fetching form template' });
+    }
+});
+
+// POST a new form template
+app.post('/api/form-templates', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const { name, fields } = req.body;
+        if (!name) return res.status(400).json({ error: 'Template name is required.' });
+
+        const newTemplate = new FormTemplate({ name, fields });
+        await newTemplate.save();
+        res.status(201).json(newTemplate);
+    } catch (err) {
+        if (err.code === 11000) { // Duplicate key error
+            return res.status(400).json({ error: 'A template with this name already exists.' });
+        }
+        res.status(500).json({ error: 'Server error creating form template' });
+    }
+});
+
+// PUT (update) an existing form template by ID
+app.put('/api/form-templates/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const { name, fields } = req.body;
+        if (!name) return res.status(400).json({ error: 'Template name is required.' });
+
+        const updatedTemplate = await FormTemplate.findByIdAndUpdate(
+            req.params.id,
+            { name, fields },
+            { new: true, runValidators: true }
+        );
+        if (!updatedTemplate) return res.status(404).json({ error: 'Template not found' });
+        res.json(updatedTemplate);
+    } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).json({ error: 'A template with this name already exists.' });
+        }
+        res.status(500).json({ error: 'Server error updating form template' });
+    }
+});
+
+// DELETE a form template by ID
+app.delete('/api/form-templates/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const deletedTemplate = await FormTemplate.findByIdAndDelete(req.params.id);
+        if (!deletedTemplate) return res.status(404).json({ error: 'Template not found' });
+        res.json({ success: true, message: 'Template deleted successfully.' });
+    } catch (err) {
+        res.status(500).json({ error: 'Server error deleting form template' });
+    }
+});
 app.get('/create-account', (req, res) =>
   serveHtmlFile(path.join(__dirname, 'public/views/create-account.html'), res)
 );
@@ -177,6 +259,63 @@ app.post('/create-account', async (req, res) => {
   }
 });
 
+// server.js
+
+// Replace the OLD app.post('/add-patient', ...) with this new API endpoint
+// server.js - Verify this is your patient creation route
+
+// server.js
+
+// server.js
+
+// POST a new daily note to a specific patient
+app.post('/api/patients/:id/notes', isAuthenticated, async (req, res) => {
+    try {
+        const { noteDate, noteText, gDriveLink } = req.body;
+        if (!noteText) {
+            return res.status(400).json({ error: 'Note text cannot be empty.' });
+        }
+
+        const patient = await Patient.findById(req.params.id);
+        if (!patient) {
+            return res.status(404).json({ error: 'Patient not found' });
+        }
+
+        const newNote = { noteDate, noteText, gDriveLink };
+        patient.dailyNotes.push(newNote);
+        
+        await patient.save();
+
+        // Return the newly added note so the frontend can display it instantly
+        res.status(201).json({ success: true, newNote: patient.dailyNotes[patient.dailyNotes.length - 1] });
+
+    } catch (err) {
+        console.error("Error adding daily note:", err);
+        res.status(500).json({ success: false, error: 'Error adding note' });
+    }
+});
+
+app.post('/api/patients', isAuthenticated, async (req, res) => {
+  try {
+    // The request body now contains static fields and the attachedForms array
+    const patientData = req.body;
+
+    // Assign the logged-in doctor to the patient record
+    patientData.doctorAssigned = req.session.user.id;
+    
+    const newPatient = new Patient(patientData);
+    await newPatient.save();
+
+    res.status(201).json({ success: true, message: 'Patient created successfully!', patient: newPatient });
+
+  } catch (err) {
+    console.error("Error saving patient:", err);
+    if (err.code === 11000) { // Duplicate key error
+        return res.status(400).json({ success: false, error: 'A patient with this Register No. already exists.' });
+    }
+    res.status(500).json({ success: false, error: 'Error saving patient' });
+  }
+});
 // Update a blog (admin only)
 app.put('/api/blogs/:id', isAuthenticated, isAdmin, async (req, res) => {
   try {
@@ -187,7 +326,11 @@ app.put('/api/blogs/:id', isAuthenticated, isAdmin, async (req, res) => {
     res.status(500).json({ error: 'Update failed' });
   }
 });
+// server.js
 
+app.get('/admin/edit-form', isAuthenticated, isAdmin, (req, res) =>
+  res.sendFile(path.join(__dirname, 'public/views/admin-form-editor.html'))
+);
 
 // Dashboard
 app.get('/dashboard', isAuthenticated, (req, res) =>
@@ -267,7 +410,31 @@ app.get('/api/admin/patients', isAuthenticated, isAdmin, async (req, res) => {
   }
 });
 
+// server.js
 
+// Add this line at the top with your other 'require' statements
+const axios = require('axios');
+
+// Add this new route somewhere before app.listen()
+app.get('/api/image-proxy', async (req, res) => {
+    const imageUrl = req.query.url;
+    if (!imageUrl) {
+        return res.status(400).send('Image URL is required');
+    }
+
+    try {
+        const response = await axios({
+            method: 'GET',
+            url: imageUrl,
+            responseType: 'stream'
+        });
+        // Pass the image data directly back to the browser
+        response.data.pipe(res);
+    } catch (error) {
+        console.error('Image proxy error:', error);
+        res.status(500).send('Failed to fetch image');
+    }
+});
 app.post('/api/approve-account/:id', isAuthenticated, isAdmin, async (req, res) => {
   try {
     const request = await AccountRequest.findByIdAndUpdate(
