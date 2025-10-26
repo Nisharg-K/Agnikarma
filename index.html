@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive Image Viewer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 {
+            margin-top: 0;
+            color: #1c1e21;
+        }
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #166fe5;
+        }
+        #image-container {
+            margin-top: 20px;
+            min-height: 100px;
+        }
+        #page-image {
+            max-width: 100%;
+            border-radius: 8px;
+            display: none; /* Hidden by default */
+        }
+        #message {
+            color: #606770;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Google Drive Image Viewer 🖼️</h1>
+        <p>Paste a shareable Google Drive image link to display its thumbnail.</p>
+        <form id="drive-form">
+            <input type="text" id="drive-link" placeholder="Enter Google Drive link here" required>
+            <button type="submit">Show Image</button>
+        </form>
+        
+        <div id="image-container">
+            <p id="message">No image to display yet. Paste a link above!</p>
+            <img id="page-image" src="" alt="Google Drive Image Preview">
+        </div>
+    </div>
+
+    <script>
+        // Select the elements from the DOM
+        const driveForm = document.getElementById('drive-form');
+        const linkInput = document.getElementById('drive-link');
+        const imageElement = document.getElementById('page-image');
+        const messageElement = document.getElementById('message');
+
+        // Listen for the form submission
+        driveForm.addEventListener('submit', function(event) {
+            // Prevent the default form submission which reloads the page
+            event.preventDefault(); 
+            
+            const url = linkInput.value;
+            // A regular expression to find the file ID in various Google Drive URL formats
+            const regex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=))([a-zA-Z0-9_-]{28,})/;
+            const match = url.match(regex);
+
+            if (match && match[1]) {
+                const fileId = match[1];
+                const thumbnailUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+                
+                // Update the image source and make it visible
+                imageElement.src = thumbnailUrl;
+                imageElement.style.display = 'block';
+                messageElement.style.display = 'none'; // Hide the helper message
+                
+                // Handle cases where the image fails to load (e.g., permissions)
+                imageElement.onerror = function() {
+                    imageElement.style.display = 'none';
+                    messageElement.textContent = '❌ Error: Could not load image. Please check the link and sharing permissions.';
+                    messageElement.style.display = 'block';
+                };
+                
+            } else {
+                // If no valid ID is found, show an error message
+                imageElement.style.display = 'none';
+                messageElement.textContent = '⚠️ Invalid Google Drive link. Please use a valid shareable link.';
+                messageElement.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+</html>
