@@ -1,455 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CRF Form - Agnikarma</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-      color: #333;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-
-    .header {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      padding: 30px;
-      text-align: center;
-      color: white;
-    }
-
-    .header h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-
-    .header p {
-      font-size: 1.1em;
-      opacity: 0.9;
-    }
-
-    .content {
-      padding: 30px;
-    }
-
-    .section {
-      margin-bottom: 40px;
-      background: #f8f9fa;
-      border-radius: 10px;
-      padding: 25px;
-      border-left: 5px solid #4facfe;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .section:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-
-    .section h3 {
-      color: #2c3e50;
-      margin-bottom: 20px;
-      font-size: 1.4em;
-      border-bottom: 2px solid #e9ecef;
-      padding-bottom: 10px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    th, td {
-      padding: 15px;
-      text-align: left;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    th {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    tr:hover {
-      background-color: #f8f9ff;
-    }
-
-    input[type="text"], input[type="date"], select, textarea {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e9ecef;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      background: white;
-    }
-
-    input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #4facfe;
-      box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
-      transform: translateY(-1px);
-    }
-
-    input[type="checkbox"], input[type="radio"] {
-      margin-right: 8px;
-      transform: scale(1.2);
-      accent-color: #4facfe;
-    }
-
-    label {
-      display: inline-flex;
-      align-items: center;
-      margin-right: 20px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-    label:hover {
-      color: #4facfe;
-    }
-
-    .checkbox-group, .radio-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-top: 10px;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .form-group label {
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #2c3e50;
-    }
-
-    .score-table {
-      overflow-x: auto;
-    }
-
-    .score-table table {
-      min-width: 600px;
-    }
-
-    .result-section {
-      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-      border-radius: 10px;
-      padding: 25px;
-      margin-top: 30px;
-    }
-
-    .signature-section {
-      background: #f8f9fa;
-      border-radius: 10px;
-      padding: 25px;
-      margin-top: 20px;
-      border: 2px dashed #dee2e6;
-    }
-
-    .signature-section h4 {
-      color: #495057;
-      margin-bottom: 15px;
-    }
-
-    .btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 12px 30px;
-      border-radius: 25px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    }
-
-    .investigation-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      list-style: none;
-      padding: 0;
-    }
-
-    .investigation-list li {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      border: 2px solid #e9ecef;
-      transition: all 0.3s ease;
-    }
-
-    .investigation-list li:hover {
-      border-color: #4facfe;
-      transform: translateY(-2px);
-    }
-
-    .investigation-list li strong {
-      color: #2c3e50;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    textarea {
-      min-height: 100px;
-      resize: vertical;
-      font-family: inherit;
-    }
-
-    .status-indicators {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .status-indicator {
-      background: white;
-      padding: 8px 12px;
-      border-radius: 20px;
-      border: 2px solid #e9ecef;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    @media (max-width: 768px) {
-      .content {
-        padding: 20px;
-      }
-      
-      .section {
-        padding: 20px;
-      }
-      
-      .header h1 {
-        font-size: 2em;
-      }
-      
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Record Form - Parul Ayurved Hospital</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #e9ecef; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: #fff; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        .form-header { text-align: center; padding: 20px; border-bottom: 2px solid #333; }
+        .form-header h1 { margin: 0; font-size: 24px; }
+        .form-header p { margin: 5px 0 0; }
+        .content { padding: 20px; }
+        .section { margin-bottom: 25px; }
+        .section-title { font-size: 18px; font-weight: 600; background-color: #f8f9fa; padding: 10px; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .grid-col-1 { grid-column: span 1; }
+        .grid-col-2 { grid-column: span 2; }
+        .grid-col-3 { grid-column: span 3; }
+        .grid-col-4 { grid-column: span 4; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: 500; font-size: 14px; margin-bottom: 5px; color: #495057; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; box-sizing: border-box;
+        }
+        .sub-group { display: flex; align-items: center; gap: 10px; }
+        .sub-group label { margin-bottom: 0; }
+        .checkbox-group, .radio-group { display: flex; flex-wrap: wrap; gap: 15px; padding-top: 5px; }
+        textarea { resize: vertical; min-height: 80px; }
+        .button-container { text-align: center; padding: 20px; border-top: 1px solid #dee2e6; }
+        .btn { padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.3s; }
+        .btn-submit { background-color: #007bff; color: white; }
+        .btn-pdf { background-color: #dc3545; color: white; margin-left: 15px; }
+        .notification { text-align: center; padding: 15px; margin-top: 20px; border-radius: 5px; display: none; }
+        .notification.success { background-color: #d4edda; color: #155724; }
+        .notification.error { background-color: #f8d7da; color: #721c24; }
+        .form-selector-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+        .form-selector-grid label { display: flex; align-items: center; background: #f8f9fa; padding: 10px; border: 1px solid #dee2e6; border-radius: 5px; cursor: pointer; }
+    </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="header">
-    <h1>CRF Form - Agnikarma</h1>
-    <p>Clinical Research Form for Agnikarma Treatment</p>
-  </div>
-
-  <div class="content">
-    <form action="/add-patient" method="POST">
-      <div class="section">
-        <h3>Patient Registration</h3>
-        <table>
-          <tr>
-            <td><strong>Register No.</strong></td><td><input type="text" name="registerNo"></td>
-            <td><strong>Sr. No.</strong></td><td><input type="text" name="srNo"></td>
-          </tr>
-          <tr>
-            <td><strong>Patient Name</strong></td><td><input type="text" name="patientName"></td>
-            <td><strong>Age & Gender</strong></td><td><input type="text" name="ageGender"></td>
-          </tr>
-          <tr>
-            <td><strong>OPD No.</strong></td><td><input type="text" name="opdNo"></td>
-            <td><strong>Address</strong></td><td><input type="text" name="address"></td>
-          </tr>
-          <tr>
-            <td><strong>Date</strong></td><td><input type="date" name="regDate"></td>
-            <td><strong>Marital Status</strong></td><td><input type="text" name="maritalStatus"></td>
-          </tr>
-          <tr>
-            <td><strong>Occupation</strong></td><td colspan="3"><input type="text" name="occupation"></td>
-          </tr>
-          <tr>
-            <td><strong>Socio-Eco Status</strong></td>
-            <td colspan="3">
-              <div class="checkbox-group">
-                <label><input type="checkbox" name="socioStatus" value="Poor"> Poor</label>
-                <label><input type="checkbox" name="socioStatus" value="Middle Class"> Middle Class</label>
-                <label><input type="checkbox" name="socioStatus" value="Rich"> Rich</label>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="section">
-        <h3>Diagnosis & Schedule</h3>
-        <table>
-          <tr>
-            <td><strong>Group</strong></td>
-            <td colspan="3">
-              <div class="radio-group">
-                <label><input type="radio" name="group" value="Group A"> Group A</label>
-                <label><input type="radio" name="group" value="Group B"> Group B</label>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><strong>Date of Sitting</strong></td>
-            <td>1st Sitting <input type="date" name="sitting1"></td>
-            <td>2nd Sitting <input type="date" name="sitting2"></td>
-          </tr>
-          <tr>
-            <td><strong>Date of Follow-up</strong></td>
-            <td>1st Follow-up <input type="date" name="followUp1"></td>
-            <td>2nd Follow-up <input type="date" name="followUp2"></td>
-          </tr>
-          <tr>
-            <td><strong>Date of Completion</strong></td>
-            <td colspan="2"><input type="date" name="completionDate"></td>
-          </tr>
-          <tr>
-            <td><strong>Drop Out</strong></td>
-            <td colspan="2"><input type="text" name="dropout"></td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="section">
-        <h3>Chief Complaints</h3>
-        <table>
-          <tr><th>Sr No.</th><th>Symptoms</th><th>Present/Absent</th></tr>
-          <tr><td>1</td><td>Shoola (Pain)</td><td><select name="cc_pain"><option>Present</option><option>Absent</option></select></td></tr>
-          <tr><td>2</td><td>Stambha (Stiffness)</td><td><select name="cc_stiffness"><option>Present</option><option>Absent</option></select></td></tr>
-          <tr><td>3</td><td>Graham</td><td><select name="cc_movement"><option>Present</option><option>Absent</option></select></td></tr>
-          <tr><td>4</td><td>Shiro shoola</td><td><select name="cc_headache"><option>Present</option><option>Absent</option></select></td></tr>
-          <tr><td>5</td><td>Suptata</td><td><select name="cc_numbness"><option>Present</option><option>Absent</option></select></td></tr>
-        </table>
-      </div>
-
-      <div class="section">
-        <h3>Visit Schedule</h3>
-        <table>
-          <tr><th>Sr No.</th><th>Visit Day</th><th>Visit Date</th></tr>
-          <tr><td>1</td><td>1st Day</td><td><input type="date" name="visit1"></td></tr>
-          <tr><td>2</td><td>15th Day</td><td><input type="date" name="visit15"></td></tr>
-          <tr><td>3</td><td>22nd Day</td><td><input type="date" name="visit22"></td></tr>
-          <tr><td>4</td><td>29th Day</td><td><input type="date" name="visit29"></td></tr>
-        </table>
-      </div>
-
-      <div class="section">
-        <h3>History</h3>
-        <div class="form-group">
-          <label>Present Illness:</label>
-          <textarea name="presentIllness"></textarea>
+    <div id="form-to-print">
+        <div class="form-header">
+            <h1>PARUL AYURVED HOSPITAL</h1>
+            <p>TEACHING HOSPITAL OF PARUL INSTITUTE OF AYURVED<br>NABH ACCREDITED</p>
         </div>
-        <div class="form-group">
-          <label>Past History:</label>
-          <textarea name="pastHistory"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Similar Complaints:</label>
-          <textarea name="similarComplaints"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Family History:</label>
-          <div>
-            <p><strong>Musculoskeletal Complaint:</strong>
-              <label><input type="radio" name="fh_msk" value="Yes"> Yes</label>
-              <label><input type="radio" name="fh_msk" value="No"> No</label>
-            </p>
-            <p><strong>Other Complaints:</strong>
-              <label><input type="radio" name="fh_other" value="Yes"> Yes</label>
-              <label><input type="radio" name="fh_other" value="No"> No</label>
-            </p>
-          </div>
-        </div>
-      </div>
+        <div class="content">
+            <form id="patient-crf-form">
+                <div class="grid">
+                    <div class="form-group grid-col-2"><label>Name of the Patient</label><input type="text" name="patientName"></div>
+                    <div class="form-group grid-col-1"><label>OPD No.</label><input type="text" name="opdNo"></div>
+                    <div class="form-group grid-col-1"><label>IPD No.</label><input type="text" name="ipdNo"></div>
+                    <div class="form-group grid-col-4"><label>Address</label><input type="text" name="address"></div>
+                    <div class="form-group grid-col-2"><label>Phone No.</label><input type="text" name="phoneNo"></div>
+                    <div class="form-group grid-col-1"><label>Religion</label><input type="text" name="religion"></div>
+                    <div class="form-group grid-col-1"><label>Age</label><input type="text" name="age"></div>
+                    <div class="form-group grid-col-1"><label>Sex</label><select name="sex"><option value="M">Male</option><option value="F">Female</option></select></div>
+                    <div class="form-group grid-col-1"><label>Marital Status</label><select name="maritalStatus"><option value="Married">Married</option><option value="Unmarried">Unmarried</option></select></div>
+                    <div class="form-group grid-col-2"><label>Occupation</label><input type="text" name="occupation"></div>
+                    <div class="form-group grid-col-2"><label>Relative's Name & Address</label><input type="text" name="relativeNameAddress"></div>
+                </div>
 
-      <!-- You can add more sections following the same pattern -->
+                <div class="section">
+                    <div class="section-title">Chief Complaints (प्रधान वेदना)</div>
+                    <div class="form-group"><textarea name="chiefComplaints"></textarea></div>
+                    <div class="section-title">History of Present Illness & Treatment Received</div>
+                    <div class="form-group"><textarea name="presentIllness"></textarea></div>
+                    <div class="section-title">Past History (पूर्व व्याधिप्रति)</div>
+                    <div class="form-group"><textarea name="pastHistory"></textarea></div>
+                    <div class="section-title">Family History (कुल वृत्तांत)</div>
+                    <div class="form-group"><textarea name="familyHistory"></textarea></div>
+                </div>
 
-      <div class="section">
-        <h3>Result</h3>
-        <div class="radio-group">
-          <label><input type="radio" name="result" value="Relieved"> Relieved</label>
-          <label><input type="radio" name="result" value="Marked Improvement"> Marked Improvement</label>
-          <label><input type="radio" name="result" value="Moderate Improvement"> Moderate Improvement</label>
-          <label><input type="radio" name="result" value="Mild Improvement"> Mild Improvement</label>
-          <label><input type="radio" name="result" value="Unchanged"> Unchanged</label>
+                <div class="section">
+                    <div class="section-title">Personal History (वैयक्तिक वृत्तांत)</div>
+                    <div class="grid">
+                        <div class="form-group grid-col-2"><label>Ahara (Veg/Mixed)</label><input type="text" name="personalAhara"></div>
+                        <div class="form-group grid-col-2"><label>Addiction</label><input type="text" name="personalAddiction"></div>
+                        <div class="form-group grid-col-2"><label>Bowel Habit</label><input type="text" name="personalBowelHabit"></div>
+                        <div class="form-group grid-col-2"><label>Urine Frequency</label><input type="text" name="personalUrineFreq"></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">General Examination (सामान्य परिक्षण)</div>
+                    <div class="grid">
+                        <div class="form-group"><label>Pulse</label><input type="text" name="genPulse"></div>
+                        <div class="form-group"><label>R.R.</label><input type="text" name="genRR"></div>
+                        <div class="form-group"><label>H.R.</label><input type="text" name="genHR"></div>
+                        <div class="form-group"><label>BP</label><input type="text" name="genBP"></div>
+                        <div class="form-group"><label>Temp</label><input type="text" name="genTemp"></div>
+                        <div class="form-group"><label>Gait</label><input type="text" name="genGait"></div>
+                        <div class="form-group"><label>Icterus</label><input type="text" name="genIcterus"></div>
+                        <div class="form-group"><label>Edema</label><input type="text" name="genEdema"></div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">Systemic Examination (संस्थानिक परिक्षण)</div>
+                    <div class="form-group grid-col-4"><label>Locomotor System</label><textarea name="sysLocomotor"></textarea></div>
+                    <div class="form-group grid-col-4"><label>Respiratory System</label><textarea name="sysRespiratory"></textarea></div>
+                    <div class="form-group grid-col-4"><label>Cardiovascular System</label><textarea name="sysCardiovascular"></textarea></div>
+                    <div class="form-group grid-col-4"><label>Gastro Intestinal System</label><textarea name="sysGastro"></textarea></div>
+                    <div class="form-group grid-col-4"><label>Central Nervous System</label><textarea name="sysCNS"></textarea></div>
+                    <div class="form-group grid-col-4"><label>Genito Urinary System</label><textarea name="sysGenitoUrinary"></textarea></div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">Pathological Investigation</div>
+                    <div class="form-group"><label>Blood, Urine, Stool, etc. (Enter Text or Google Drive Link)</label><input type="url" name="pathologicalInvestigation" placeholder="https://...."></div>
+                    <div class="section-title">Radiological Findings</div>
+                    <div class="form-group"><label>X-Ray, USG, CT/MRI, etc. (Enter Text or Google Drive Link)</label><input type="url" name="radiologicalFindings" placeholder="https://...."></div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">Nidan / Diagnosis</div>
+                    <div class="form-group"><textarea name="diagnosis"></textarea></div>
+                    <div class="section-title">Treatment Principle</div>
+                    <div class="form-group"><textarea name="treatmentPrinciple"></textarea></div>
+                    <div class="section-title">Treatment (Medical / Surgical / Panchkarma)</div>
+                    <div class="form-group"><label>Enter Treatment Details or Google Drive Link</label><input type="url" name="treatment" placeholder="https://...."></div>
+                    <div class="section-title">Diet & Regimen</div>
+                    <div class="form-group"><textarea name="dietRegimen"></textarea></div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Attach Optional Forms</div>
+                    <div id="form-selector-container" class="form-selector-grid">
+                        </div>
+                </div>
+
+                <div id="attached-forms-fields-container"></div>
+
+                <div class="section">
+                    <div class="grid">
+                        <div class="form-group grid-col-2"><label>Department</label><input type="text" name="department"></div>
+                        <div class="form-group grid-col-2"><label>Consultant Signature</label><input type="text" name="consultantSignature"></div>
+                    </div>
+                </div>
+
+            </form>
         </div>
-      </div>
-
-      <div class="signature-section">
-        <h4>Signatures</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Guide Name & Signature:</label>
-            <input type="text" name="guideSignature">
-          </div>
-          <div class="form-group">
-            <label>Scholar Name & Signature:</label>
-            <input type="text" name="scholarSignature">
-          </div>
-        </div>
-      </div>
-
-      <div style="text-align: center; margin-top: 30px;">
-        <button class="btn" id="submitBtn" type="submit">Submit Form</button>
-      </div>
-    </form>
-  </div>
+    </div>
+    <div class="button-container">
+        <button class="btn btn-submit" type="submit" form="patient-crf-form">Submit Form</button>
+        <button class="btn btn-pdf" id="downloadPdfBtn">Download as PDF</button>
+    </div>
+    <div id="form-notification" class="notification"></div>
 </div>
 
 <script>
-  document.getElementById('submitBtn').addEventListener('click', function(event) {
-    const confirmSubmission = confirm("Are you sure you want to submit the form?");
-    if (!confirmSubmission) {
-      event.preventDefault();
-    } else {
-      alert("Form submitted successfully!");
-    }
-  });
-</script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const form = document.getElementById('patient-crf-form');
+        const notification = document.getElementById('form-notification');
+        const formSelectorContainer = document.getElementById('form-selector-container');
+        const attachedFormsFieldsContainer = document.getElementById('attached-forms-fields-container');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+        
+        // Fetch all available form templates
+        try {
+            const response = await fetch('/api/form-templates');
+            const templates = await response.json();
+            
+            if(templates.length > 0) {
+                templates.forEach(template => {
+                    const label = document.createElement('label');
+                    label.innerHTML = `<input type="checkbox" class="form-selector-checkbox" value="${template._id}"> ${template.name}`;
+                    formSelectorContainer.appendChild(label);
+                });
+            } else {
+                formSelectorContainer.innerHTML = '<p>No optional forms have been created by the admin yet.</p>';
+            }
+        } catch (error) { console.error('Error fetching form templates:', error); }
 
+        // Listen for changes on the checkboxes to add/remove forms
+        formSelectorContainer.addEventListener('change', async (e) => {
+            if (e.target.classList.contains('form-selector-checkbox')) {
+                const templateId = e.target.value;
+                const isChecked = e.target.checked;
+                
+                if (isChecked) {
+                    const response = await fetch(`/api/form-templates/${templateId}`);
+                    const template = await response.json();
+                    renderAttachedForm(template);
+                } else {
+                    const sectionToRemove = document.getElementById(`attached-form-${templateId}`);
+                    if (sectionToRemove) sectionToRemove.remove();
+                }
+            }
+        });
+
+        // Renders the HTML for a single attached form
+        const renderAttachedForm = (template) => {
+            const section = document.createElement('div');
+            section.className = 'section';
+            section.id = `attached-form-${template._id}`;
+            section.dataset.formName = template.name;
+
+            const title = document.createElement('div');
+            title.className = 'section-title';
+            title.textContent = template.name;
+            section.appendChild(title);
+
+            const grid = document.createElement('div');
+            grid.className = 'grid';
+            
+            template.fields.forEach(field => {
+                const group = document.createElement('div');
+                group.className = 'form-group grid-col-4';
+                const label = document.createElement('label');
+                label.textContent = field.label;
+                group.appendChild(label);
+                let input = document.createElement(field.fieldType === 'textarea' ? 'textarea' : 'input');
+                if(input.tagName === 'INPUT') input.type = field.fieldType;
+                input.name = field.label;
+                group.appendChild(input);
+                grid.appendChild(group);
+            });
+            section.appendChild(grid);
+            attachedFormsFieldsContainer.appendChild(section);
+        };
+
+        // Handle the final form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = {}; 
+
+            // Process all static fields
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            // Process dynamically attached forms
+            data.attachedForms = [];
+            const attachedSections = attachedFormsFieldsContainer.querySelectorAll('.section');
+            attachedSections.forEach(section => {
+                const formName = section.dataset.formName;
+                const inputs = section.querySelectorAll('input, textarea, select');
+                const formDataMap = {};
+                inputs.forEach(input => {
+                    formDataMap[input.name] = input.value;
+                });
+                data.attachedForms.push({ formName, formData: formDataMap });
+            });
+
+            // Submit the combined data
+            try {
+                const response = await fetch('/api/patients', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Submission failed.');
+
+                notification.textContent = result.message;
+                notification.className = 'notification success';
+                form.reset();
+                attachedFormsFieldsContainer.innerHTML = '';
+            } catch (error) {
+                notification.textContent = error.message;
+                notification.className = 'notification error';
+            } finally {
+                notification.style.display = 'block';
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+        });
+        
+        // PDF download logic
+        downloadPdfBtn.addEventListener('click', () => {
+             const { jsPDF } = window.jspdf;
+             const formToPrint = document.getElementById('form-to-print');
+             html2canvas(formToPrint, { scale: 2 }).then(canvas => {
+                 const imgData = canvas.toDataURL('image/png');
+                 const pdf = new jsPDF('p', 'mm', 'a4');
+                 const pdfWidth = pdf.internal.pageSize.getWidth();
+                 const pdfHeight = pdf.internal.pageSize.getHeight();
+                 const imgHeight = canvas.height * pdfWidth / canvas.width;
+                 let heightLeft = imgHeight;
+                 let position = 0;
+                 pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                 heightLeft -= pdfHeight;
+                 while (heightLeft > 0) {
+                     position = heightLeft - imgHeight;
+                     pdf.addPage();
+                     pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                     heightLeft -= pdfHeight;
+                 }
+                 const patientName = document.querySelector('[name="patientName"]').value || 'patient';
+                 pdf.save(`${patientName}-Case-Report.pdf`);
+             });
+        });
+    });
+</script>
 </body>
 </html>

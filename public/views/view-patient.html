@@ -2,137 +2,280 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>View Patient</title>
+  <title>View Patient Details</title>
+
   <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 30px; }
+    .container { max-width: 900px; margin: auto; }
+    .card { background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); margin-bottom: 30px; }
+    h1, h2 { text-align: center; color: #333; margin-bottom: 30px; }
+    .section-title { font-size: 1.3em; font-weight: 600; color: #007bff; margin-top: 30px; padding-bottom: 10px; border-bottom: 2px solid #007bff; }
+    .info-item { margin-top: 15px; padding-bottom: 15px; border-bottom: 1px solid #e9ecef; display: flex; flex-wrap: wrap; align-items: flex-start; }
+    .info-item:last-child { border-bottom: none; }
+    .label { font-weight: 600; width: 250px; color: #555; }
+    .value { color: #111; flex: 1; min-width: 200px; white-space: pre-wrap; }
+    .value img { max-width: 100%; height: auto; border-radius: 5px; margin-top: 5px; }
+    /* Daily Notes Styles */
+    .notes-list { list-style: none; padding: 0; }
+    .note-item { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+    .note-header { font-weight: bold; margin-bottom: 10px; }
+    .note-body { white-space: pre-wrap; margin-bottom: 15px; }
+    .add-note-form textarea, .add-note-form input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; box-sizing: border-box; }
+    .btn { display: inline-block; padding: 10px 20px; text-decoration: none; border: none; border-radius: 5px; cursor: pointer; }
+    .btn-primary { background: #28a745; color: white; }
+    .btn-pdf { background-color: #dc3545; color: white; }
+    .btn-back { background: #6c757d; color: white; margin-left: 10px; }
+    .button-container { text-align: center; margin-top: 20px; }
+    /* Add these styles inside the <style> tag */
+  @media print {
     body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 30px;
+      background-color: #fff; /* Ensure white background for print */
+      padding: 10px; /* Reduce padding for print */
     }
-
+    .card {
+      box-shadow: none; /* Remove shadows for print */
+      border: 1px solid #ccc; /* Add simple border */
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    /* Hide elements not needed in the PDF */
+    #add-note-form, /* Hide the form to add new notes */
+    .button-container, /* Hide the PDF and Back buttons */
+    .card h2 + hr, /* Hide the hr above the 'Add New Note' form */
+    .card h3 /* Hide the 'Add New Note' title */ {
+      display: none !important; /* Force hiding */
+    }
     .container {
-      background: #fff;
-      padding: 30px;
-      max-width: 800px;
-      margin: auto;
-      border-radius: 10px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      max-width: 100%; /* Use full page width */
     }
-
-    h1 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 30px;
-    }
-
     .info-item {
-      margin-bottom: 15px;
-      padding: 10px 15px;
-      border-left: 4px solid #4facfe;
-      background: #f9f9f9;
-      border-radius: 5px;
+      border-bottom: 1px solid #eee; /* Lighter border for print */
     }
-
-    .label {
-      font-weight: bold;
-      display: inline-block;
-      width: 180px;
-      color: #555;
+    .section-title {
+      border-bottom: 1px solid #999;
+      color: #000; /* Black for print */
     }
-
-    .value {
-      color: #111;
+    a {
+      text-decoration: none; /* Remove underline from links */
+      color: inherit; /* Use default text color */
     }
-
-    .btn {
-      display: inline-block;
-      margin-top: 30px;
-      background: #4facfe;
-      color: white;
-      padding: 10px 20px;
-      text-decoration: none;
-      border-radius: 25px;
-      font-weight: bold;
-      transition: background 0.3s;
+    /* Ensure images are reasonably sized */
+    .value img {
+      max-height: 400px; /* Limit image height in PDF */
+      width: auto;
+      max-width: 90%;
     }
-
-    .btn:hover {
-      background: #327de0;
-    }
-
-    .error {
-      color: red;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 20px;
-    }
+  }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Patient Details</h1>
-    <div id="patientDetails">Loading...</div>
-    <a href="/admin-dashboard" class="btn">← Back to Dashboard</a>
+    <div class="card" id="form-to-print">
+        <h1 id="patient-name-header">Patient Case Record</h1>
+        <div id="patientDetails">Loading...</div>
+    </div>
+
+    <div class="card">
+        <h2>Daily Diagnostic Notes</h2>
+        <div id="notes-container">
+            <ul id="notes-list" class="notes-list"></ul>
+        </div>
+        <hr>
+        <h3>Add a New Note</h3>
+        <form id="add-note-form" class="add-note-form">
+            <input type="date" id="noteDate" name="noteDate" required>
+            <textarea id="noteText" name="noteText" rows="4" placeholder="Enter diagnostic notes here..." required></textarea>
+            <input type="url" id="gDriveLink" name="gDriveLink" placeholder="Paste Google Drive image link here...">
+            <button type="submit" class="btn btn-primary">Add Note</button>
+        </form>
+    </div>
+
+    <div class="button-container">
+        <button id="downloadPdfBtn" class="btn btn-pdf">Download as PDF</button>
+        <a href="javascript:history.back()" class="btn btn-back">← Go Back</a>
+    </div>
   </div>
-
-  <script>
+<script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const id = window.location.pathname.split('/').pop();
-      const container = document.getElementById('patientDetails');
+        const patientId = window.location.pathname.split('/').pop();
+        const patientDetailsContainer = document.getElementById('patientDetails');
+        const patientNameHeader = document.getElementById('patient-name-header');
+        const notesList = document.getElementById('notes-list');
+        const addNoteForm = document.getElementById('add-note-form');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 
-      try {
-        const res = await fetch(`/api/view-patient/${id}`);
-        if (!res.ok) throw new Error('Patient not found');
+        // Function to convert Google Drive link to a displayable thumbnail link
+        const convertGoogleDriveLink = (url) => {
+            if (!url || typeof url !== 'string') return null;
+            const regex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=))([a-zA-Z0-9_-]{28,})/;
+            const match = url.match(regex);
+            if (match && match[1]) {
+                const fileId = match[1];
+                return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+            }
+            return null;
+        };
+        
+        // Function to render a single field (label + value)
+        const renderField = (label, value) => {
+            if (!value) return ''; 
+            let displayValue = value;
+            const googleThumbnailUrl = convertGoogleDriveLink(value);
+            
+            if (googleThumbnailUrl) {
+                const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(googleThumbnailUrl)}`;
+                // UPDATED: onerror now just hides the image container if it fails
+                const onErrorScript = `this.style.display='none'; console.error('Failed to load proxied image:', this.src);`; 
+                displayValue = `<a href="${value}" target="_blank" rel="noopener noreferrer"><img src="${proxyUrl}" alt="${label}" style="display: block; max-width: 100%; height: auto; border-radius: 5px; margin-top: 5px;" crossorigin="anonymous" onerror="${onErrorScript}"></a>`;
+            } else if (typeof value === 'string' && value.startsWith('http')) {
+                displayValue = `<a href="${value}" target="_blank" rel="noopener noreferrer">${value}</a>`;
+            }
+            return `<div class="info-item"><span class="label">${label}</span><span class="value">${displayValue}</span></div>`;
+        };
 
-        const p = await res.json();
+        // Function to render a single daily note
+        const renderNote = (note) => {
+            const li = document.createElement('li');
+            li.className = 'note-item';
+            const noteDate = new Date(note.noteDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+            let imageHtml = '';
+            const googleThumbnailUrl = convertGoogleDriveLink(note.gDriveLink);
+            
+            if(googleThumbnailUrl) {
+                const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(googleThumbnailUrl)}`;
+                 // UPDATED: onerror now just hides the image container if it fails
+                const onErrorScript = `this.style.display='none'; console.error('Failed to load proxied image:', this.src);`;
+                imageHtml = `<a href="${note.gDriveLink}" target="_blank" rel="noopener noreferrer"><img src="${proxyUrl}" alt="Note Image" style="display: block; max-width: 100%; border-radius: 5px; margin-top: 10px;" crossorigin="anonymous" onerror="${onErrorScript}"></a>`;
+            }
+            li.innerHTML = `<div class="note-header">Date: ${noteDate}</div><div class="note-body">${note.noteText}</div>${imageHtml}`;
+            notesList.prepend(li);
+        };
 
-        const format = (label, value) => `
-          <div class="info-item">
-            <span class="label">${label}:</span>
-            <span class="value">${value || '-'}</span>
-          </div>
-        `;
+        let patientDataForPdf = {}; 
 
-        container.innerHTML = `
-          ${format("Patient Name", p.patientName)}
-          ${format("Age & Gender", p.ageGender)}
-          ${format("Register No.", p.registerNo)}
-          ${format("Sr. No.", p.srNo)}
-          ${format("OPD No.", p.opdNo)}
-          ${format("Address", p.address)}
-          ${format("Marital Status", p.maritalStatus)}
-          ${format("Occupation", p.occupation)}
-          ${format("Socio-Eco Status", p.socioStatus?.join(', '))}
-          ${format("Group", p.group)}
-          ${format("1st Sitting", p.sitting1)}
-          ${format("2nd Sitting", p.sitting2)}
-          ${format("1st Follow-up", p.followUp1)}
-          ${format("2nd Follow-up", p.followUp2)}
-          ${format("Completion Date", p.completionDate)}
-          ${format("Drop Out", p.dropout)}
-          ${format("Chief Complaint - Pain", p.cc_pain)}
-          ${format("Chief Complaint - Stiffness", p.cc_stiffness)}
-          ${format("Chief Complaint - Graham", p.cc_movement)}
-          ${format("Chief Complaint - Headache", p.cc_headache)}
-          ${format("Chief Complaint - Numbness", p.cc_numbness)}
-          ${format("Visit Day 1", p.visit1)}
-          ${format("Visit Day 15", p.visit15)}
-          ${format("Visit Day 22", p.visit22)}
-          ${format("Visit Day 29", p.visit29)}
-          ${format("Present Illness", p.presentIllness)}
-          ${format("Past History", p.pastHistory)}
-          ${format("Similar Complaints", p.similarComplaints)}
-          ${format("Family History - Musculoskeletal", p.fh_msk)}
-          ${format("Family History - Other", p.fh_other)}
-          ${format("Result", p.result)}
-          ${format("Guide Signature", p.guideSignature)}
-          ${format("Scholar Signature", p.scholarSignature)}
-        `;
-      } catch (err) {
-        console.error(err);
-        container.innerHTML = '<div class="error">Error loading patient data</div>';
-      }
+        // Fetch and render patient data
+        try {
+            const res = await fetch(`/api/view-patient/${patientId}`);
+            if (!res.ok) throw new Error('Patient not found');
+            const p = await res.json();
+            patientDataForPdf = p; 
+
+            patientNameHeader.textContent = `Case Record: ${p.patientName || 'N/A'}`;
+            
+            // Build the HTML for all fields
+            let detailsHtml = `
+                <div class="section-title">Patient Demographics</div>
+                ${renderField('Patient Name', p.patientName)}
+                ${renderField('OPD No.', p.opdNo)}
+                ${renderField('IPD No.', p.ipdNo)}
+                ${renderField('Address', p.address)}
+                ${renderField('Phone No.', p.phoneNo)}
+                ${renderField('Religion', p.religion)}
+                ${renderField('Age', p.age)}
+                ${renderField('Sex', p.sex)}
+                ${renderField('Marital Status', p.maritalStatus)}
+                ${renderField('Occupation', p.occupation)}
+                ${renderField('Relative\'s Name & Address', p.relativeNameAddress)}
+
+                <div class="section-title">History</div>
+                ${renderField('Chief Complaints', p.chiefComplaints)}
+                ${renderField('History of Present Illness', p.presentIllness)}
+                ${renderField('Past History', p.pastHistory)}
+                ${renderField('Family History', p.familyHistory)}
+                ${renderField('Personal History (Ahara)', p.personalAhara)}
+                ${renderField('Personal History (Addiction)', p.personalAddiction)}
+                ${renderField('Personal History (Bowel Habit)', p.personalBowelHabit)}
+                ${renderField('Personal History (Urine Frequency)', p.personalUrineFreq)}
+                
+                <div class="section-title">General Examination</div>
+                ${renderField('Pulse', p.genPulse)}
+                ${renderField('R.R.', p.genRR)}
+                ${renderField('H.R.', p.genHR)}
+                ${renderField('BP', p.genBP)}
+                ${renderField('Temp', p.genTemp)}
+                ${renderField('Gait', p.genGait)}
+                ${renderField('Icterus', p.genIcterus)}
+                ${renderField('Edema', p.genEdema)}
+                
+                <div class="section-title">Systemic Examination</div>
+                ${renderField('Locomotor System', p.sysLocomotor)}
+                ${renderField('Respiratory System', p.sysRespiratory)}
+                ${renderField('Cardiovascular System', p.sysCardiovascular)}
+                ${renderField('Gastro Intestinal System', p.sysGastro)}
+                ${renderField('Central Nervous System', p.sysCNS)}
+                ${renderField('Genito Urinary System', p.sysGenitoUrinary)}
+                
+                <div class="section-title">Investigations & Diagnosis</div>
+                ${renderField('Pathological Investigation', p.pathologicalInvestigation)}
+                ${renderField('Radiological Findings', p.radiologicalFindings)}
+                ${renderField('Diagnosis', p.diagnosis)}
+                
+                <div class="section-title">Treatment</div>
+                ${renderField('Treatment Principle', p.treatmentPrinciple)}
+                ${renderField('Treatment', p.treatment)}
+                ${renderField('Diet & Regimen', p.dietRegimen)}
+            `;
+
+            // Render attached optional forms
+            if (p.attachedForms && p.attachedForms.length > 0) {
+                p.attachedForms.forEach(form => {
+                    detailsHtml += `<div class="section-title">${form.formName}</div>`;
+                    if (form.formData && typeof form.formData === 'object') {
+                        for (const [label, value] of Object.entries(form.formData)) {
+                            detailsHtml += renderField(label, value);
+                        }
+                    }
+                });
+            }
+
+            // Render final signature fields
+            detailsHtml += `
+                <div class="section-title">Signatures</div>
+                ${renderField('Department', p.department)}
+                ${renderField('Consultant Signature', p.consultantSignature)}
+            `;
+
+            // Display the generated HTML
+            patientDetailsContainer.innerHTML = detailsHtml;
+
+            // Render existing daily notes (oldest first)
+            if (p.dailyNotes && p.dailyNotes.length > 0) {
+                // Clear any previous notes before rendering
+                notesList.innerHTML = ''; 
+                p.dailyNotes.slice().reverse().forEach(renderNote);
+            }
+
+        } catch (err) {
+            console.error(err);
+            patientDetailsContainer.innerHTML = '<div style="color: red; text-align: center;">Error loading patient data. Please check the console for details.</div>';
+        }
+
+        // Handle adding a new note
+        addNoteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const noteData = {
+                noteDate: document.getElementById('noteDate').value,
+                noteText: document.getElementById('noteText').value,
+                gDriveLink: document.getElementById('gDriveLink').value
+            };
+            try {
+                const res = await fetch(`/api/patients/${patientId}/notes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(noteData)
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.error || 'Failed to add note.');
+                renderNote(result.newNote); 
+                addNoteForm.reset(); 
+            } catch (err) { alert(`Error: ${err.message}`); }
+        });
+        
+        // Handle PDF download button click
+        downloadPdfBtn.addEventListener('click', () => {
+            // Simply trigger the browser's print dialog
+            window.print();
+        });
     });
   </script>
 </body>

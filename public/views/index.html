@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the Agnikarma Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3B82F6; /* A slightly more modern blue */
+            --secondary-color: #1F2937; /* A softer dark gray */
+            --accent-color: #10B981; /* A vibrant green for accents */
+            --light-gray: #F9FAFB;
+            --text-color: #374151;
+            --border-color: #E5E7EB;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+        body { font-family: 'Poppins', sans-serif; line-height: 1.7; color: var(--text-color); background-color: #fff; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+        a { text-decoration: none; color: var(--primary-color); }
+        h1, h2, h3 { color: var(--secondary-color); font-weight: 600; }
+
+        /* Animation */
+        .animate-on-scroll { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
+
+        /* Navigation */
+        .navbar { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 1rem 0; position: sticky; top: 0; z-index: 1000; }
+        .navbar .container { display: flex; justify-content: space-between; align-items: center; }
+        .navbar .logo { font-size: 1.5rem; font-weight: 700; color: var(--secondary-color); }
+        .navbar .nav-links a { color: var(--secondary-color); margin: 0 15px; font-weight: 500; transition: color 0.3s; }
+        .navbar .nav-links a:hover { color: var(--primary-color); }
+        .btn { display: inline-block; padding: 10px 25px; border-radius: 8px; font-weight: 500; transition: all 0.3s; }
+        .btn-primary { background: var(--primary-color); color: #fff; }
+        .btn-primary:hover { background-color: #2563EB; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 2px solid var(--border-color); color: var(--secondary-color); margin-left: 10px; }
+        .btn-outline:hover { background: var(--light-gray); border-color: var(--secondary-color); }
+
+        /* Hero Section */
+        .hero {
+            background-color: var(--light-gray);
+            text-align: center;
+            padding: 100px 0;
+        }
+        .hero h1 { font-size: 3.8rem; line-height: 1.2; max-width: 800px; margin: 0 auto 20px; }
+        .hero p { font-size: 1.2rem; max-width: 650px; margin: 0 auto 30px; color: #6B7280; }
+        .hero .btn { padding: 15px 35px; font-size: 1.1rem; }
+        .hero-image-container { margin-top: 50px; }
+        .hero-image-container img { max-width: 80%; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+
+        /* How It Works Section */
+        .how-it-works { padding: 80px 0; text-align: center; }
+        .section-header { margin-bottom: 60px; }
+        .section-header .tagline { color: var(--primary-color); font-weight: 600; margin-bottom: 10px; }
+        .section-header h2 { font-size: 2.8rem; }
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+        .step-card { text-align: center; }
+        .step-card .step-number { font-size: 2rem; font-weight: 700; color: var(--primary-color); background-color: #DBEAFE; border-radius: 50%; width: 60px; height: 60px; line-height: 60px; margin: 0 auto 20px; }
+        .step-card h3 { font-size: 1.5rem; margin-bottom: 10px; }
+        .step-card p { color: #6B7280; }
+
+        /* Detailed Features Section */
+        .detailed-features { padding: 80px 0; background-color: var(--light-gray); }
+        .feature-item { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; margin-bottom: 80px; }
+        .feature-item:nth-child(even) .feature-image { grid-column: 1; grid-row: 1; }
+        .feature-image img { width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .feature-content h3 { font-size: 2rem; margin-bottom: 15px; }
+        .feature-content p { margin-bottom: 20px; }
+
+        /* Testimonials Section */
+        .testimonials { padding: 80px 0; }
+        .testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .testimonial-card { background: var(--light-gray); border: 1px solid var(--border-color); padding: 30px; border-radius: 12px; }
+        .testimonial-card p.quote { font-style: italic; margin-bottom: 20px; }
+        .testimonial-author { display: flex; align-items: center; }
+        .testimonial-author img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
+        .author-info h4 { margin: 0; }
+        .author-info span { font-size: 0.9rem; color: #6B7280; }
+
+        /* CTA Section */
+        .cta-section { padding: 80px 0; background: linear-gradient(45deg, var(--secondary-color), #374151); color: #fff; text-align: center; }
+        .cta-section h2 { font-size: 2.8rem; color: #fff; max-width: 700px; margin: 0 auto 20px; }
+        .cta-section p { font-size: 1.1rem; max-width: 600px; margin: 0 auto 30px; color: #D1D5DB; }
+
+        /* Footer */
+        .footer { background: var(--secondary-color); color: #9CA3AF; padding: 40px 0; text-align: center; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .section-header h2, .cta-section h2 { font-size: 2rem; }
+            .steps-grid { grid-template-columns: 1fr; }
+            .feature-item { grid-template-columns: 1fr; }
+            .feature-item:nth-child(even) .feature-image { grid-column: 1; } /* Reset for mobile */
+            .feature-image { margin-bottom: 20px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="logo">Agnikarma Portal</a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="/blogs">Blog</a>
+                <a href="#testimonials">Testimonials</a>
+            </div>
+            <div>
+                <a href="/login" class="btn btn-outline">Login</a>
+                <a href="/create-account" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero animate-on-scroll">
+        <h1>Modernizing Clinical Research Data</h1>
+        <p>The Agnikarma Portal is the secure, intuitive platform designed for medical professionals to streamline patient data management and accelerate clinical research.</p>
+        <a href="/create-account" class="btn btn-primary">Request a Doctor's Account</a>
+        <div class="hero-image-container">
+            
+        </div>
+    </header>
+
+    <section class="how-it-works">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <p class="tagline">SIMPLE WORKFLOW</p>
+                <h2>Get Started in 3 Easy Steps</h2>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card animate-on-scroll" style="transition-delay: 100ms;">
+                    <div class="step-number">1</div>
+                    <h3>Register Account</h3>
+                    <p>Submit a request for a new doctor's account through our simple and secure registration form.</p>
+                </div>
+                <div class="step-card animate-on-scroll" style="transition-delay: 200ms;">
+                    <div class="step-number">2</div>
+                    <h3>Admin Approval</h3>
+                    <p>Our administrators will quickly review and approve your request to ensure a secure environment.</p>
+                </div>
+                <div class="step-card animate-on-scroll" style="transition-delay: 300ms;">
+                    <div class="step-number">3</div>
+                    <h3>Manage Patients</h3>
+                    <p>Once approved, log in to your dashboard to begin managing patient data with our powerful tools.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="detailed-features">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <p class="tagline">POWERFUL FEATURES</p>
+                <h2>A Toolkit Built for Modern Research</h2>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-content animate-on-scroll">
+                    <h3>Centralized Patient Data</h3>
+                    <p>Access and manage all your patient CRF data from a single, secure dashboard. Say goodbye to scattered paperwork and spreadsheets.</p>
+                    <a href="/login" class="btn btn-primary">Explore Dashboard</a>
+                </div>
+                <div class="feature-image animate-on-scroll" style="transition-delay: 100ms;">
+                    
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-image animate-on-scroll">
+                    
+                </div>
+                <div class="feature-content animate-on-scroll" style="transition-delay: 100ms;">
+                    <h3>Customizable Forms</h3>
+                    <p>Our dynamic form builder allows you to tailor data collection to your specific needs. Add, edit, or remove fields with an intuitive interface—no coding required.</p>
+                    <a href="/login" class="btn btn-primary">Design a Form</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <p class="tagline">TRUSTED BY PROFESSIONALS</p>
+                <h2>What Our Doctors Are Saying</h2>
+            </div>
+            <div class="testimonial-grid">
+                <div class="testimonial-card animate-on-scroll">
+                    <p class="quote">"The Agnikarma Portal has transformed how we handle clinical data. The dynamic form builder is a game-changer for our research."</p>
+                    <div class="testimonial-author">
+                        
+
+[Image of a smiling female doctor]
+
+                        <div class="author-info">
+                            <h4>Dr. Anjali Sharma</h4>
+                            <span>Lead Researcher, AyurVeda Institute</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card animate-on-scroll" style="transition-delay: 100ms;">
+                    <p class="quote">"Finally, a secure and intuitive platform that understands the needs of clinicians. The admin dashboard gives me a perfect overview of all operations."</p>
+                    <div class="testimonial-author">
+                        
+                        <div class="author-info">
+                            <h4>Dr. Vikram Singh</h4>
+                            <span>Chief Medical Officer, Svastha Hospital</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container animate-on-scroll">
+            <h2>Ready to Streamline Your Clinical Workflow?</h2>
+            <p>Join the growing community of medical professionals using the Agnikarma Portal to enhance their research and patient management.</p>
+            <a href="/create-account" class="btn btn-primary" style="padding: 15px 35px; font-size: 1.1rem; background-color: var(--accent-color);">Request Access Now</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Agnikarma Portal. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simple script for on-scroll animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('.animate-on-scroll').forEach(element => {
+                observer.observe(element);
+            });
+        });
+    </script>
+</body>
+</html>

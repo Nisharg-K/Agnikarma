@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Manage Custom Forms</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; margin: 0; color: #333; height: 100vh; display: flex; flex-direction: column; }
+        .editor-layout { display: flex; flex: 1; overflow: hidden; }
+        /* Sidebar */
+        .sidebar { width: 300px; background: #fff; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #e0e0e0; }
+        .sidebar-header h2 { margin: 0; font-size: 1.2rem; }
+        .new-form-btn { width: calc(100% - 40px); margin: 20px; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; }
+        .template-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; }
+        .template-list li { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #e0e0e0; }
+        .template-list li:hover { background: #f0f0f0; }
+        .template-list li.active { background: #e0e8ff; font-weight: 600; }
+        .delete-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 1.1rem; }
+        /* Main Editor */
+        .main-editor { flex: 1; padding: 30px; overflow-y: auto; background: #fafafa; }
+        .editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .form-name-group { flex: 1; margin-right: 20px; }
+        .form-name-group label { font-weight: 600; }
+        .form-name-input { width: 100%; padding: 10px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px; }
+        .btn { padding: 12px 25px; border-radius: 5px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .btn-save { background: #28a745; color: white; }
+        /* Field Editor styles from previous version */
+        .field-editor { background-color: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 20px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: center; }
+        .field-editor .form-group { display: flex; flex-direction: column; }
+        .field-editor label { font-weight: 600; font-size: 14px; margin-bottom: 5px; color: #555; }
+        .field-editor input, .field-editor select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .remove-field-btn { background-color: #e74c3c; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .notification { position: fixed; top: 20px; right: 20px; padding: 15px; background-color: #2c3e50; color: white; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: none; z-index: 2000; }
+    </style>
+</head>
+<body>
+
+    <div class="editor-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Custom Forms</h2>
+            </div>
+            <ul id="template-list" class="template-list"></ul>
+            <button id="new-form-btn" class="new-form-btn">＋ Create New Form</button>
+        </aside>
+
+        <main class="main-editor">
+            <div class="editor-header">
+                <div class="form-name-group">
+                    <label for="form-name-input">Form Name</label>
+                    <input type="text" id="form-name-input" class="form-name-input" placeholder="e.g., Form for XYZ Disease">
+                </div>
+                <button id="save-form-btn" class="btn btn-save">Save Form</button>
+            </div>
+            <hr>
+            <div id="fields-editor-container">
+                </div>
+            <button id="add-field-btn" style="margin-top: 20px;">＋ Add Field</button>
+        </main>
+    </div>
+    
+    <div id="notification"></div>
+
+    <script>
+
+document.addEventListener('DOMContentLoaded', () => {
+    const templateList = document.getElementById('template-list');
+    const newFormBtn = document.getElementById('new-form-btn');
+    const saveFormBtn = document.getElementById('save-form-btn');
+    const addFieldBtn = document.getElementById('add-field-btn');
+    const formNameInput = document.getElementById('form-name-input');
+    const fieldsEditorContainer = document.getElementById('fields-editor-container');
+    const notification = document.getElementById('notification');
+    
+    let currentTemplateId = null;
+
+    const showNotification = (message, isError = false) => {
+        notification.textContent = message;
+        notification.style.backgroundColor = isError ? '#e74c3c' : '#28a745';
+        notification.style.display = 'block';
+        setTimeout(() => { notification.style.display = 'none'; }, 3000);
+    };
+
+    const renderTemplateList = async () => {
+        try {
+            const response = await fetch('/api/form-templates');
+            const templates = await response.json();
+            templateList.innerHTML = '';
+            templates.forEach(template => {
+                const li = document.createElement('li');
+                li.dataset.id = template._id;
+                li.innerHTML = `
+                    <span>${template.name}</span>
+                    <button class="delete-btn" data-id="${template._id}" title="Delete Form">&times;</button>
+                `;
+                templateList.appendChild(li);
+            });
+        } catch (err) { showNotification('Could not load forms.', true); }
+    };
+
+    const clearEditor = () => {
+        currentTemplateId = null;
+        formNameInput.value = '';
+        fieldsEditorContainer.innerHTML = '';
+        document.querySelectorAll('.template-list li.active').forEach(el => el.classList.remove('active'));
+    };
+
+    const renderFieldEditor = (field = {}) => {
+        const fieldWrapper = document.createElement('div');
+        fieldWrapper.classList.add('field-editor');
+        fieldWrapper.innerHTML = `
+            <div class="form-group">
+                <label>Label / Question</label>
+                <input type="text" class="field-label" value="${field.label || ''}">
+            </div>
+            <div class="form-group">
+                <label>Field Type</label>
+                <select class="field-type">
+                    <option value="text" ${field.fieldType === 'text' ? 'selected' : ''}>Text</option>
+                    <option value="textarea" ${field.fieldType === 'textarea' ? 'selected' : ''}>Text Area</option>
+                    <option value="date" ${field.fieldType === 'date' ? 'selected' : ''}>Date</option>
+                </select>
+            </div>
+            <button class="remove-field-btn" title="Remove field">×</button>
+        `;
+        fieldsEditorContainer.appendChild(fieldWrapper);
+        fieldWrapper.querySelector('.remove-field-btn').addEventListener('click', () => fieldWrapper.remove());
+    };
+
+    const loadTemplateForEditing = async (id) => {
+        try {
+            const response = await fetch(`/api/form-templates/${id}`);
+            const template = await response.json();
+            clearEditor();
+            currentTemplateId = template._id;
+            formNameInput.value = template.name;
+            template.fields.forEach(renderFieldEditor);
+            document.querySelector(`.template-list li[data-id="${id}"]`).classList.add('active');
+        } catch (err) { showNotification('Could not load form details.', true); }
+    };
+
+    const saveTemplate = async () => {
+        const name = formNameInput.value.trim();
+        if (!name) {
+            showNotification('Form Name is required.', true);
+            return;
+        }
+        const fieldElements = fieldsEditorContainer.querySelectorAll('.field-editor');
+        const fields = Array.from(fieldElements).map(el => ({
+            label: el.querySelector('.field-label').value,
+            fieldType: el.querySelector('.field-type').value
+        }));
+
+        const method = currentTemplateId ? 'PUT' : 'POST';
+        const url = currentTemplateId ? `/api/form-templates/${currentTemplateId}` : '/api/form-templates';
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, fields })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
+            showNotification('Form saved successfully!');
+            await renderTemplateList();
+            loadTemplateForEditing(result._id); // Reload the saved form
+        } catch (err) { showNotification(`Error saving: ${err.message}`, true); }
+    };
+    
+    const deleteTemplate = async (id) => {
+        if (!confirm('Are you sure you want to delete this form?')) return;
+        try {
+            const response = await fetch(`/api/form-templates/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Could not delete form.');
+            showNotification('Form deleted.');
+            if (currentTemplateId === id) clearEditor();
+            await renderTemplateList();
+        } catch (err) { showNotification(err.message, true); }
+    };
+    
+    // Event Listeners
+    newFormBtn.addEventListener('click', clearEditor);
+    saveFormBtn.addEventListener('click', saveTemplate);
+    addFieldBtn.addEventListener('click', () => renderFieldEditor());
+    templateList.addEventListener('click', (e) => {
+        if (e.target.closest('li')) {
+            loadTemplateForEditing(e.target.closest('li').dataset.id);
+        }
+        if (e.target.classList.contains('delete-btn')) {
+            e.stopPropagation();
+            deleteTemplate(e.target.dataset.id);
+        }
+    });
+
+    // Initial Load
+    renderTemplateList();
+});
+</script>
+ 
+
+</body>
+</html>
