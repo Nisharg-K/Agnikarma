@@ -1,57 +1,35 @@
+// models/Patients.js
 const mongoose = require('mongoose');
 
+// NEW: Sub-schema for daily notes
+const dailyNoteSchema = new mongoose.Schema({
+  noteDate: { type: Date, default: Date.now },
+  noteText: { type: String, required: true },
+  gDriveLink: { type: String } // Will store the Google Drive URL
+});
+
+// NEW: Sub-schema for attached forms
+const attachedFormSchema = new mongoose.Schema({
+    formName: { type: String, required: true },
+    formData: {
+        type: Map,
+        of: mongoose.Schema.Types.Mixed
+    }
+});
+
 const patientSchema = new mongoose.Schema({
-  registerNo: String,
-  srNo: String,
+  // --- Original Static CRF Fields ---
   patientName: String,
-  ageGender: String,
-  opdNo: String,
-  address: String,
-  regDate: Date,
-  maritalStatus: String,
-  occupation: String,
+  // ... (keep all your other original fields like registerNo, srNo, etc.)
+  consultantSignature: String,
 
-  socioStatus: [String], // Can be ['Poor', 'Middle Class', 'Rich']
+  // --- UPDATED: from customFields to attachedForms ---
+  attachedForms: [attachedFormSchema],
 
-  group: { type: String, enum: ['Group A', 'Group B'] },
-  sitting1: Date,
-  sitting2: Date,
-  followUp1: Date,
-  followUp2: Date,
-  completionDate: Date,
-  dropout: String,
+  // --- NEW: Daily Notes Section ---
+  dailyNotes: [dailyNoteSchema],
 
-  // Chief Complaints
-  cc_pain: { type: String, enum: ['Present', 'Absent'] },
-  cc_stiffness: { type: String, enum: ['Present', 'Absent'] },
-  cc_movement: { type: String, enum: ['Present', 'Absent'] },
-  cc_headache: { type: String, enum: ['Present', 'Absent'] },
-  cc_numbness: { type: String, enum: ['Present', 'Absent'] },
-
-  // Visit Schedule
-  visit1: Date,
-  visit15: Date,
-  visit22: Date,
-  visit29: Date,
-
-  // History
-  presentIllness: String,
-  pastHistory: String,
-  similarComplaints: String,
-  fh_msk: { type: String, enum: ['Yes', 'No'] },
-  fh_other: { type: String, enum: ['Yes', 'No'] },
-
-  // Result
-  result: {
-    type: String,
-    enum: ['Relieved', 'Marked Improvement', 'Moderate Improvement', 'Mild Improvement', 'Unchanged']
-  },
-
-  // Signatures
-  guideSignature: String,
-  scholarSignature: String,
-
-  // Internal (optional)
+  // --- Internal Fields ---
   createdAt: { type: Date, default: Date.now },
   doctorAssigned: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
