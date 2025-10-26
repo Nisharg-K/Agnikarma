@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const Blog = require('./models/BLogs');
 // server.js - near the top
-const FormTemplate = require('./models/FormTemplate');
+const FormTemplate = require('./models/Formtemplate');
 
 
 const app = express();
@@ -579,3 +579,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   initAdminAccount();
 });
+
