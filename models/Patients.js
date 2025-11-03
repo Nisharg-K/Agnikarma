@@ -1,14 +1,14 @@
 // models/Patients.js
 const mongoose = require('mongoose');
 
-// NEW: Sub-schema for daily notes
+// Sub-schema for daily notes
 const dailyNoteSchema = new mongoose.Schema({
   noteDate: { type: Date, default: Date.now },
   noteText: { type: String, required: true },
-  gDriveLink: { type: String } // Will store the Google Drive URL
+  gDriveLink: { type: String } 
 });
 
-// NEW: Sub-schema for attached forms
+// Sub-schema for attached forms
 const attachedFormSchema = new mongoose.Schema({
     formName: { type: String, required: true },
     formData: {
@@ -18,15 +18,24 @@ const attachedFormSchema = new mongoose.Schema({
 });
 
 const patientSchema = new mongoose.Schema({
+  // --- THIS IS THE FIX ---
+  registerNo: { 
+    type: String, 
+    unique: true, 
+    required: [true, 'A unique Register No. is required.'] 
+  },
+  
   // --- Original Static CRF Fields ---
+  srNo: String,
   patientName: String,
-  // ... (keep all your other original fields like registerNo, srNo, etc.)
+  ageGender: String,
+  opdNo: String,
+  // ... (keep all your other fields: address, phoneNo, etc.) ...
+  // ...
   consultantSignature: String,
 
-  // --- UPDATED: from customFields to attachedForms ---
+  // --- Dynamic Sections ---
   attachedForms: [attachedFormSchema],
-
-  // --- NEW: Daily Notes Section ---
   dailyNotes: [dailyNoteSchema],
 
   // --- Internal Fields ---
