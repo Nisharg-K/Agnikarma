@@ -52,9 +52,13 @@
             <form id="patient-crf-form">
                 <div class="grid">
                     <div class="form-group grid-col-2"><label>Name of the Patient</label><input type="text" name="patientName"></div>
+                    
+                    <div class="form-group grid-col-1"><label>Register No. (Unique)</label><input type="text" name="registerNo" required></div>
+                    
                     <div class="form-group grid-col-1"><label>OPD No.</label><input type="text" name="opdNo"></div>
                     <div class="form-group grid-col-1"><label>IPD No.</label><input type="text" name="ipdNo"></div>
-                    <div class="form-group grid-col-4"><label>Address</label><input type="text" name="address"></div>
+                    
+                    <div class="form-group grid-col-3"><label>Address</label><input type="text" name="address"></div>
                     <div class="form-group grid-col-2"><label>Phone No.</label><input type="text" name="phoneNo"></div>
                     <div class="form-group grid-col-1"><label>Religion</label><input type="text" name="religion"></div>
                     <div class="form-group grid-col-1"><label>Age</label><input type="text" name="age"></div>
@@ -65,14 +69,11 @@
                 </div>
 
                 <div class="section">
-                    <div class="section-title">Chief Complaints (प्रधान वेदना)</div>
-                    <div class="form-group"><textarea name="chiefComplaints"></textarea></div>
-                    <div class="section-title">History of Present Illness & Treatment Received</div>
-                    <div class="form-group"><textarea name="presentIllness"></textarea></div>
-                    <div class="section-title">Past History (पूर्व व्याधिप्रति)</div>
-                    <div class="form-group"><textarea name="pastHistory"></textarea></div>
-                    <div class="section-title">Family History (कुल वृत्तांत)</div>
-                    <div class="form-group"><textarea name="familyHistory"></textarea></div>
+                    <div class="section-title">History</div>
+                    <div class="form-group"><textarea name="chiefComplaints" placeholder="Chief Complaints (प्रधान वेदना)"></textarea></div>
+                    <div class="form-group"><textarea name="presentIllness" placeholder="History of Present Illness & Treatment Received"></textarea></div>
+                    <div class="form-group"><textarea name="pastHistory" placeholder="Past History (पूर्व व्याधिप्रति)"></textarea></div>
+                    <div class="form-group"><textarea name="familyHistory" placeholder="Family History (कुल वृत्तांत)"></textarea></div>
                 </div>
 
                 <div class="section">
@@ -110,21 +111,17 @@
                 </div>
                 
                 <div class="section">
-                    <div class="section-title">Pathological Investigation</div>
-                    <div class="form-group"><label>Blood, Urine, Stool, etc. (Enter Text or Google Drive Link)</label><input type="url" name="pathologicalInvestigation" placeholder="https://...."></div>
-                    <div class="section-title">Radiological Findings</div>
-                    <div class="form-group"><label>X-Ray, USG, CT/MRI, etc. (Enter Text or Google Drive Link)</label><input type="url" name="radiologicalFindings" placeholder="https://...."></div>
+                    <div class="section-title">Investigations</div>
+                    <div class="form-group"><label>Pathological Investigation (Enter Text or Google Drive Link)</label><input type="url" name="pathologicalInvestigation" placeholder="https://...."></div>
+                    <div class="form-group"><label>Radiological Findings (Enter Text or Google Drive Link)</label><input type="url" name="radiologicalFindings" placeholder="https://...."></div>
                 </div>
                 
                 <div class="section">
-                    <div class="section-title">Nidan / Diagnosis</div>
-                    <div class="form-group"><textarea name="diagnosis"></textarea></div>
-                    <div class="section-title">Treatment Principle</div>
-                    <div class="form-group"><textarea name="treatmentPrinciple"></textarea></div>
-                    <div class="section-title">Treatment (Medical / Surgical / Panchkarma)</div>
-                    <div class="form-group"><label>Enter Treatment Details or Google Drive Link</label><input type="url" name="treatment" placeholder="https://...."></div>
-                    <div class="section-title">Diet & Regimen</div>
-                    <div class="form-group"><textarea name="dietRegimen"></textarea></div>
+                    <div class="section-title">Diagnosis & Treatment</div>
+                    <div class="form-group"><label>Nidan / Diagnosis</label><textarea name="diagnosis"></textarea></div>
+                    <div class="form-group"><label>Treatment Principle</label><textarea name="treatmentPrinciple"></textarea></div>
+                    <div class="form-group"><label>Treatment (Medical / Surgical / Panchkarma)</label><input type="url" name="treatment" placeholder="https://...."></div>
+                    <div class="form-group"><label>Diet & Regimen</label><textarea name="dietRegimen"></textarea></div>
                 </div>
 
                 <div class="section">
@@ -230,12 +227,10 @@
             const formData = new FormData(form);
             const data = {}; 
 
-            // Process all static fields
             for (let [key, value] of formData.entries()) {
                 data[key] = value;
             }
 
-            // Process dynamically attached forms
             data.attachedForms = [];
             const attachedSections = attachedFormsFieldsContainer.querySelectorAll('.section');
             attachedSections.forEach(section => {
@@ -248,7 +243,6 @@
                 data.attachedForms.push({ formName, formData: formDataMap });
             });
 
-            // Submit the combined data
             try {
                 const response = await fetch('/api/patients', {
                     method: 'POST',
@@ -271,29 +265,9 @@
             }
         });
         
-        // PDF download logic
+        // Handle PDF Download (using window.print() as discussed)
         downloadPdfBtn.addEventListener('click', () => {
-             const { jsPDF } = window.jspdf;
-             const formToPrint = document.getElementById('form-to-print');
-             html2canvas(formToPrint, { scale: 2 }).then(canvas => {
-                 const imgData = canvas.toDataURL('image/png');
-                 const pdf = new jsPDF('p', 'mm', 'a4');
-                 const pdfWidth = pdf.internal.pageSize.getWidth();
-                 const pdfHeight = pdf.internal.pageSize.getHeight();
-                 const imgHeight = canvas.height * pdfWidth / canvas.width;
-                 let heightLeft = imgHeight;
-                 let position = 0;
-                 pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-                 heightLeft -= pdfHeight;
-                 while (heightLeft > 0) {
-                     position = heightLeft - imgHeight;
-                     pdf.addPage();
-                     pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-                     heightLeft -= pdfHeight;
-                 }
-                 const patientName = document.querySelector('[name="patientName"]').value || 'patient';
-                 pdf.save(`${patientName}-Case-Report.pdf`);
-             });
+            window.print();
         });
     });
 </script>
