@@ -18,23 +18,69 @@ const attachedFormSchema = new mongoose.Schema({
 });
 
 const patientSchema = new mongoose.Schema({
-  // --- THIS IS THE FIX ---
+  // --- Core / Demographics ---
   registerNo: { 
     type: String, 
     unique: true, 
     required: [true, 'A unique Register No. is required.'] 
   },
-  
-  // --- Original Static CRF Fields ---
-  srNo: String,
   patientName: String,
-  ageGender: String,
   opdNo: String,
-  // ... (keep all your other fields: address, phoneNo, etc.) ...
-  // ...
+  ipdNo: String,
+  address: String,
+  phoneNo: String,
+  religion: String,
+  age: String,
+  sex: String,
+  maritalStatus: String,
+  occupation: String,
+  relativeNameAddress: String,
+  
+  // --- History ---
+  chiefComplaints: String,
+  presentIllness: String,
+  pastHistory: String,
+  familyHistory: String,
+
+  // --- Personal History ---
+  personalAhara: String,
+  personalAddiction: String,
+  personalBowelHabit: String,
+  personalUrineFreq: String,
+
+  // --- General Examination ---
+  genPulse: String,
+  genRR: String,
+  genHR: String,
+  genBP: String,
+  genTemp: String,
+  genGait: String,
+  genIcterus: String,
+  genEdema: String,
+
+  // --- Systemic Examination ---
+  sysLocomotor: String,
+  sysRespiratory: String,
+  sysCardiovascular: String,
+  sysGastro: String,
+  sysCNS: String,
+  sysGenitoUrinary: String,
+
+  // --- Investigations (These will now be saved) ---
+  pathologicalInvestigation: String,
+  radiologicalFindings: String,
+
+  // --- Diagnosis & Treatment (These will also be saved) ---
+  diagnosis: String,
+  treatmentPrinciple: String,
+  treatment: String,
+  dietRegimen: String,
+  
+  // --- Signatures ---
+  department: String,
   consultantSignature: String,
 
-  // --- Dynamic Sections ---
+  // --- Dynamic Sections (Already Correct) ---
   attachedForms: [attachedFormSchema],
   dailyNotes: [dailyNoteSchema],
 
