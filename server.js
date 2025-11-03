@@ -11,7 +11,7 @@ const axios = require('axios'); // Make sure axios is installed (npm install axi
 
 // --- Models ---
 const Blog = require('./models/BLogs');
-const FormTemplate = require('./models/FormTemplate');
+const FormTemplate = require('./models/Formtemplate');
 // Assuming your other models are in the /models folder
 const User = require('./models/User'); 
 const Patient = require('./models/Patients');
@@ -437,3 +437,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   initAdminAccount();
 });
+
